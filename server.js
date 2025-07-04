@@ -225,66 +225,16 @@ wss.on('connection', (ws) => {
                 imagePrompt = userMessage.replace(/generate\s+(?:an\s+)?(?:image|picture|photo)\s+of\s+/i, '').trim();
             }
 
+            // Always generate an image if imagePrompt is set (from _prompt: ..._ in AI response or user message)
             if (imagePrompt) {
                 console.log('Generating images for prompt:', imagePrompt);
-                
-                const imageUrls = [
-                    `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true&seed=${Math.floor(Math.random() * 1000000000) + 1}&safe=true`,
-                    `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true&seed=${Math.floor(Math.random() * 1000000000) + 1}&safe=true&width=1024&height=1024&steps=50`
-                ];
-                
-                const userAgents = [
-                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                ];
-
-                let imagesGenerated = 0;
-                const maxImages = 2;
-
-                for (let i = 0; i < maxImages; i++) {
-                    try {
-                        const base64Image = await new Promise((resolve, reject) => {
-                            https.get(imageUrls[i], {
-                                headers: {
-                                    'User-Agent': userAgents[i],
-                                    'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-                                    'Accept-Language': 'en-US,en;q=0.9',
-                                    'Cache-Control': 'no-cache',
-                                    'Pragma': 'no-cache'
-                                }
-                            }, (response) => {
-                                if (response.statusCode !== 200) {
-                                    reject(new Error(`Failed to fetch image: ${response.statusCode}`));
-                                    return;
-                                }
-
-                                const chunks = [];
-                                response.on('data', (chunk) => chunks.push(chunk));
-                                response.on('end', () => {
-                                    const buffer = Buffer.concat(chunks);
-                                    const base64 = buffer.toString('base64');
-                                    const mimeType = response.headers['content-type'];
-                                    const base64Data = `data:${mimeType};base64,${base64}`;
-                                    resolve(base64Data);
-                                });
-                            }).on('error', reject);
-                        });
-
-                        ws.send(JSON.stringify({ role: 'image', content: base64Image }));
-                        imagesGenerated++;
-                        
-                        if (imagesGenerated === maxImages) {
-                            break;
-                        }
-                    } catch (error) {
-                        console.error(`Error generating image ${i + 1}:`, error);
-                        ws.send(JSON.stringify({ role: 'ai', content: `Sorry, I encountered an error while generating image ${i + 1}!` }));
-                    }
-                }
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true&seed=${Math.floor(Math.random() * 1000000000) + 1}&safe=true`;
+                const base64Url = Buffer.from(imageUrl).toString('base64');
+                ws.send(JSON.stringify({ role: 'image', content: base64Url }));
             }
         } catch (error) {
-            console.error('Error with API or file:', error);
-            ws.send(JSON.stringify({ role: 'ai', content: 'Sorry, I encountered an error, bro!' }));
+            console.error('Error or file:', error);
+            ws.send(JSON.stringify({ role: 'ai', content: 'Sorry, I encountered an error' }));
         }
     });
 
