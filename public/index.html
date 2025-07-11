@@ -4,31 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixx AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'merriweather': ['Merriweather', 'serif'],
+                        'inter': ['Inter', 'Inter Fallback', 'Roboto', 'Open Sans', 'Arial', 'sans-serif'],
+                    },
+                    colors: {
+                        'dark': {
+                            'bg': 'rgb(24, 25, 26)',
+                            'header': 'rgb(24, 25, 26)',
+                            'card': '#242628',
+                            'hover': '#2c2e30',
+                            'input': '#161618',
+                        },
+                        'light': {
+                            'bg': '#ffffff',
+                            'header': '#ffffff',
+                            'card': '#e0e0e0',
+                            'hover': '#cccccc',
+                            'input': '#f5f5f5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background-color: #212121;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Inter', 'Inter Fallback', Roboto, 'Open Sans', Arial, sans-serif;
-            font-weight: 400;
-            overflow: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: #212121 #212121;
-            transition: background-color 0.3s ease;
-            -webkit-overflow-scrolling: touch;
-            position: relative;
-        }
-        html {
-            height: 100%;
-        }
-        body.light-theme {
-            background-color: #ffffff;
-            scrollbar-color: #e0e0e0 #f5f5f5;
-        }
+
         body::-webkit-scrollbar-track {
             background: #161618;
         }
@@ -48,192 +56,26 @@
         body.light-theme::-webkit-scrollbar-thumb:hover {
             background: #cccccc;
         }
-        .header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 10px 20px;
-            position: sticky;
-            top: 0;
-            background-color: #212121;
-            z-index: 11;
-            transition: background-color 0.3s ease;
-            flex-shrink: 0;
-            height: 60px;
-        }
-        .header.light-theme {
-            background-color: #ffffff;
-        }
-        .profile-container {
-            position: relative;
-            display: inline-block;
-        }
-        .profile-icon {
-            background-color: #ffffff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #000000;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .light-theme .profile-icon {
-            background-color: #333333;
-            color: #ffffff;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: #242628;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            min-width: 150px;
-            z-index: 12;
-            transition: background-color 0.3s ease;
-        }
-        .light-theme .dropdown-menu {
-            background-color: #e0e0e0;
-        }
-        .dropdown-menu.active {
-            display: block;
-        }
-        .dropdown-item {
-            padding: 10px 15px;
-            color: white;
-            font-size: 14px;
-            text-align: left;
-            cursor: default;
-            transition: color 0.3s ease;
-        }
-        .light-theme .dropdown-item {
-            color: #333333;
-        }
-        .dropdown-button {
-            padding: 10px 15px;
-            color: white;
-            font-size: 14px;
-            background: none;
-            border: none;
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-            font-family: 'Inter', 'Inter Fallback', Roboto, 'Open Sans', Arial, sans-serif;
-            font-weight: 400;
-            transition: color 0.3s ease;
-        }
-        .light-theme .dropdown-button {
-            color: #333333;
-        }
-        .dropdown-button:hover {
-            background-color: #2c2e30;
-        }
-        .light-theme .dropdown-button:hover {
-            background-color: #cccccc;
-        }
-        .title {
-            color: white;
-            font-size: 30px;
-            text-align: center;
-            padding: 20px 0;
-            font-family: 'Inter', 'Inter Fallback', Roboto, 'Open Sans', Arial, sans-serif;
-            font-weight: 300;
-            position: absolute;
-            top: 35%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            transition: all 0.3s ease;
-            width: 90%;
-            max-width: 800px;
-        }
-        .light-theme .title {
-            color: #333333;
-        }
-        .title.hidden {
-            display: none;
-        }
-        .example-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 20px;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            position: absolute;
-            bottom: 35%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            padding: 0 20px;
-            flex-wrap: nowrap;
-        }
-        .example-buttons.hidden {
-            display: none;
-        }
-        .example-button {
-            background-color: #161618;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-width: 150px;
-            justify-content: center;
-            box-shadow: none;
-            white-space: nowrap;
-            flex: 1;
-            max-width: 120px;
-        }
-        .example-button:hover {
-            transform: none;
-            border-color: rgba(255, 255, 255, 0.5);
-            background-color: #1a1a1c;
-        }
-        .example-button:active {
-            transform: none;
-        }
-        .light-theme .example-button {
-            background-color: #ffffff;
-            color: #333333;
-            border: 1px solid rgba(0, 0, 0, 0.3);
-        }
-        .light-theme .example-button:hover {
-            border-color: rgba(0, 0, 0, 0.5);
-            background-color: #f0f0f0;
-        }
-        .button-icon {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        .message-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            overflow-y: auto;
-            position: relative;
-            gap: 20px;
-            padding-bottom: 150px;
-            padding-top: 60px;
+        body {
+            scrollbar-width: thin;
+            scrollbar-color: #212121 #212121;
             -webkit-overflow-scrolling: touch;
         }
+        body.light-theme {
+            scrollbar-color: #e0e0e0 #f5f5f5;
+        }
+        
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+
+        
+
+        
+
         .user-message {
             color: white;
             font-size: 16px;
@@ -257,129 +99,26 @@
             color: white;
             font-size: 16px;
             text-align: left;
-            margin: 0;
+            margin: 0 0 8px 0;
             overflow-wrap: break-word;
             max-width: 90%;
             align-self: flex-start;
             word-spacing: 2px;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, background-color 0.3s ease;
             position: relative;
             z-index: 1;
+            background-color: #242628;
+            padding: 10px 15px;
+            border-radius: 15px;
         }
         .light-theme .ai-message {
             color: #333333;
-        }
-        .ai-message .flex-1 {
-            position: relative;
-            min-height: 250px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-width: 260px;
-            max-width: 520px;
-        }
-        .ai-message .placeholder {
-            width: 250px;
-            height: 250px;
-            background: linear-gradient(45deg, #ffffff, #000000);
-            border-radius: 8px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0;
-            opacity: 0.1;
-        }
-        .ai-message .placeholder.second {
-            left: calc(50% + 270px);
-        }
-        .ai-message .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #FFF;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-        }
-        .ai-message .loader.second {
-            left: calc(50% + 270px);
-        }
-        @keyframes rotation {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-        }
-        .ai-message img {
-            width: 100%;
-            max-width: 250px;
-            height: auto;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 8px;
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-        }
-        .ai-message img.second {
-            left: calc(50% + 270px);
-        }
-        .image-message {
-            margin: 0;
-            max-width: 90%;
-            align-self: flex-start;
-            position: relative;
-            width: 100%;
-            max-width: 520px;
-            aspect-ratio: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #242628;
-            border-radius: 8px;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .image-message img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .image-message.error {
-            color: white;
-            font-size: 14px;
-            text-align: left;
-            margin: 0;
-            align-self: flex-start;
-            padding: 10px 15px;
-            background-color: #242628;
-            border-radius: 8px;
-        }
-        .light-theme .image-message {
             background-color: #e0e0e0;
         }
-        .light-theme .image-message.error {
-            color: #333333;
-            background-color: #e0e0e0;
-        }
+        
+
+        
+
         .error-message {
             color: #ff5555;
             font-size: 14px;
@@ -412,186 +151,228 @@
             border: 3px solid #333333;
             border-top: 3px solid transparent;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+
+        .ai-message pre {
+            background-color: #1e1e1e !important;
+            color: #e6e6e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 1em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        .loader {
-            width: 80px;
-            aspect-ratio: 1;
+        .light-theme .ai-message pre {
+            background-color: #f5f5f5 !important;
+            color: #333;
+        }
+        
+
+        .ai-message code {
+            background-color: #2d2d2d;
+            color: #e6e6e6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            word-break: break-word;
+        }
+        .light-theme .ai-message code {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+
+        .ai-message h1 {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin: 16px 0 8px 0;
+            color: #ffffff;
+        }
+        .ai-message h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin: 14px 0 6px 0;
+            color: #ffffff;
+        }
+        .ai-message h3 {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 12px 0 6px 0;
+            color: #ffffff;
+        }
+        .light-theme .ai-message h1,
+        .light-theme .ai-message h2,
+        .light-theme .ai-message h3 {
+            color: #333333;
+        }
+        
+
+        .ai-message p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+
+        .ai-message a {
+            color: #4a9eff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .ai-message a:hover {
+            color: #357abd;
+            text-decoration: underline;
+        }
+        .light-theme .ai-message a {
+            color: #2563eb;
+        }
+        .light-theme .ai-message a:hover {
+            color: #1d4ed8;
+        }
+        
+
+        .ai-message ul, .ai-message ol {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+        .ai-message li {
+            margin: 4px 0;
+            line-height: 1.5;
+        }
+        
+
+        .ai-message blockquote {
+            border-left: 4px solid #4a9eff;
+            margin: 12px 0;
+            padding: 8px 16px;
+            background-color: rgba(74, 158, 255, 0.1);
+            border-radius: 0 4px 4px 0;
+            font-style: italic;
+        }
+        .light-theme .ai-message blockquote {
+            background-color: rgba(37, 99, 235, 0.1);
+            border-left-color: #2563eb;
+        }
+        
+
+        .ai-message hr {
+            border: none;
+            height: 1px;
+            background-color: #444;
+            margin: 16px 0;
+        }
+        .light-theme .ai-message hr {
+            background-color: #ddd;
+        }
+        
+
+        .ai-message del {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+
+        .ai-message u {
+            text-decoration: underline;
+        }
+        .ai-message pre code {
+            font-family: inherit;
+            font-size: 14px;
+            line-height: inherit;
+            color: #d4d4d4;
+            display: block;
+            white-space: pre;
+            padding: 0;
+            margin: 0;
+            tab-size: 4;
+        }
+        .light-theme .ai-message pre code {
+            color: #333333;
+        }
+        .ai-message pre code.language-python,
+        .ai-message pre code.language-javascript,
+        .ai-message pre code.language-html,
+        .ai-message pre code.language-css,
+        .ai-message pre code.language-text {
+            color: inherit;
+            white-space: pre;
+            tab-size: 4;
+        }
+        
+
+        .ai-message pre .copy-button {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 8px;
+            right: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+            transition: background-color 0.3s ease;
             z-index: 2;
         }
-        .loader:before,
-        .loader:after {
-            content: "";
-            position: absolute;
-            border-radius: 50px;
-            box-shadow: 0 0 0 3px inset #fff;
-            animation: l4 2.5s infinite;
+        .light-theme .ai-message pre .copy-button {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #333333;
         }
-        @keyframes l4 {
-            0% {
-                inset: 0 35px 35px 0;
-            }
-            12.5% {
-                inset: 0 35px 0 0;
-            }
-            25% {
-                inset: 35px 35px 0 0;
-            }
-            37.5% {
-                inset: 35px 0 0 0;
-            }
-            50% {
-                inset: 35px 0 0 35px;
-            }
-            62.5% {
-                inset: 0 0 0 35px;
-            }
-            75% {
-                inset: 0 0 35px 35px;
-            }
-            87.5% {
-                inset: 0 0 35px 0;
-            }
-            100% {
-                inset: 0 35px 35px 0;
-            }
+        .ai-message pre .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
-        .input-container {
-            width: 90%;
-            max-width: 800px;
-            height: 100px;
-            background-color: #242628;
-            border-radius: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            position: fixed;
-            bottom: 50%;
-            left: 50%;
-            transform: translate(-50%, 50%);
-            z-index: 10;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .light-theme .ai-message pre .copy-button:hover {
+            background-color: rgba(0, 0, 0, 0.2);
         }
+        .ai-message pre .copy-button.copied {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .light-theme .ai-message pre .copy-button.copied {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+
         .input-container.moved-down {
             bottom: 0;
             transform: translateX(-50%);
         }
-        .light-theme .input-container {
-            background-color: #e0e0e0;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-        .input-text {
-            color: #d3d3d3;
-            font-size: 16px;
-            flex-grow: 1;
-            border: none;
-            background: none;
-            outline: none;
-            white-space: pre-wrap;
-            font-family: 'Inter', 'Inter Fallback', Arial, sans-serif;
-            font-weight: 400;
-            transition: color 0.3s ease;
-            padding: 0 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .light-theme .input-text {
-            color: #333333;
-        }
-        .light-theme .input-text::placeholder {
-            color: #666666;
-        }
-        .button-group {
+        
+
+        .profile-modal.active,
+        .firebase-auth-modal.active {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
         }
-        .think-button {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            height: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 0 15px;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
+        
+
+        .dropdown-menu.active {
+            display: block;
         }
-        .think-button:hover {
-            border-color: rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 1);
+        
+
+        .title.hidden {
+            display: none;
         }
-        .light-theme .think-button {
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            color: rgba(0, 0, 0, 0.8);
+        
+
+        .example-buttons.hidden {
+            display: none;
         }
-        .light-theme .think-button:hover {
-            border-color: rgba(0, 0, 0, 0.4);
-            background: rgba(0, 0, 0, 0.05);
-            color: rgba(0, 0, 0, 1);
-        }
-        .think-button svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-        button {
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .circle-button {
-            background-color: #ffffff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #000000;
-            font-size: 36px;
-            font-weight: bold;
-            padding: 0;
-            border: none;
-            cursor: pointer;
-        }
-        .circle-button img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-        }
-        .light-theme .circle-button {
-            background-color: #333333;
-            color: #ffffff;
-        }
+        
+
         @media (max-width: 768px) {
             .title {
                 font-size: 24px;
                 top: 30%;
             }
-            
             .example-buttons {
                 bottom: 30%;
                 gap: 6px;
                 max-width: 350px;
             }
-            
             .example-button {
                 padding: 10px 10px;
                 font-size: 12px;
@@ -599,80 +380,48 @@
                 max-width: 100px;
                 min-width: 120px;
             }
-            
             .input-container {
                 width: 98vw;
                 max-width: 99vw;
-                height: 70px;
+                height: 90px;
                 border-radius: 15px;
                 padding: 8px;
             }
-            
             .input-text {
                 font-size: 14px;
             }
-            
             .message-container {
                 padding: 0 5px;
-                padding-bottom: 80px;
+                padding-bottom: 100px;
             }
-            
             .user-message, .ai-message {
                 font-size: 14px;
                 max-width: 100%;
             }
-            
-            .ai-message .flex-1 {
-                min-height: 120px;
-                min-width: 120px;
-            }
-            
-            .ai-message .placeholder {
-                width: 120px;
-                height: 120px;
-            }
-            .ai-message .placeholder.second {
-                left: calc(50% + 220px);
-            }
-            .ai-message .loader.second {
-                left: calc(50% + 220px);
-            }
-            
-            .ai-message img {
-                max-width: 200px;
-            }
-            
-            .image-message {
-                max-width: 95%;
-                max-width: 250px;
-            }
-            
+
             .circle-button {
                 width: 32px;
                 height: 32px;
             }
-            
             .circle-button img {
                 width: 16px;
                 height: 16px;
             }
-            
             .think-button {
                 height: 22px;
                 padding: 0 8px;
                 font-size: 11px;
                 gap: 4px;
             }
-            
             .think-button svg {
                 width: 10px;
                 height: 10px;
             }
-            /* Hide example buttons on mobile */
+
             .example-buttons {
                 display: none !important;
             }
-            /* Chat menu adjustments */
+
             #chatList {
                 width: 90vw !important;
                 min-width: 0 !important;
@@ -693,13 +442,11 @@
                 font-size: 20px;
                 top: 25%;
             }
-            
             .example-buttons {
                 bottom: 25%;
                 gap: 5px;
                 max-width: 280px;
             }
-            
             .example-button {
                 padding: 8px 8px;
                 font-size: 11px;
@@ -707,480 +454,274 @@
                 max-width: 80px;
                 min-width: 90px;
             }
-            
             .input-container {
-                height: 80px;
+                height: 100px;
                 border-radius: 15px;
                 padding: 10px;
             }
-            
             .input-text {
                 font-size: 14px;
             }
-            
             .message-container {
                 padding: 0 10px;
-                padding-bottom: 100px;
+                padding-bottom: 120px;
             }
-            
             .user-message, .ai-message {
                 font-size: 14px;
                 max-width: 100%;
             }
-            
-            .ai-message .flex-1 {
-                min-height: 180px;
-                min-width: 180px;
-            }
-            
-            .ai-message .placeholder {
-                width: 180px;
-                height: 180px;
-            }
-            .ai-message .placeholder.second {
-                left: calc(50% + 200px);
-            }
-            .ai-message .loader.second {
-                left: calc(50% + 200px);
-            }
-            
-            .ai-message img {
-                max-width: 180px;
-            }
-            
-            .image-message {
-                max-width: 100%;
-                max-width: 200px;
-            }
-            
+
             .circle-button {
                 width: 32px;
                 height: 32px;
             }
-            
             .circle-button img {
                 width: 16px;
                 height: 16px;
             }
-            
             .think-button {
                 height: 26px;
                 padding: 0 10px;
                 font-size: 12px;
                 gap: 5px;
             }
-            
             .think-button svg {
                 width: 11px;
                 height: 11px;
             }
-        }
-
-        /* Profile Customization Modal Styles */
-        .profile-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .profile-modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: #242628;
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .light-theme .modal-content {
-            background-color: #ffffff;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .light-theme .modal-title {
-            color: #333333;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .light-theme .close-modal {
-            color: #333333;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            color: #ffffff;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .light-theme .form-label {
-            color: #333333;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            background-color: #161618;
-            color: #ffffff;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .light-theme .form-input {
-            background-color: #f5f5f5;
-            border-color: #e0e0e0;
-            color: #333333;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #4a9eff;
-        }
-
-        .save-profile {
-            background-color: #4a9eff;
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
-        }
-
-        .save-profile:hover {
-            background-color: #357abd;
-        }
-
-        /* Code block styles */
-        .ai-message pre {
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 8px 0;
-            overflow-x: auto;
-            position: relative;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            line-height: 1.5;
-            tab-size: 4;
-            white-space: pre;
-        }
-
-        .light-theme .ai-message pre {
-            background-color: #f5f5f5;
-        }
-
-        .ai-message pre code {
-            font-family: inherit;
-            font-size: 14px;
-            line-height: inherit;
-            color: #d4d4d4;
-            display: block;
-            white-space: pre;
-            padding: 0;
-            margin: 0;
-            tab-size: 4;
-        }
-
-        .light-theme .ai-message pre code {
-            color: #333333;
-        }
-
-        .ai-message pre code.language-python,
-        .ai-message pre code.language-javascript,
-        .ai-message pre code.language-html,
-        .ai-message pre code.language-css,
-        .ai-message pre code.language-text {
-            color: inherit;
-            white-space: pre;
-            tab-size: 4;
-        }
-
-        /* Copy button styles */
-        .ai-message pre .copy-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 4px;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 12px;
-            padding: 4px 8px;
-            transition: background-color 0.3s ease;
-            z-index: 2;
-        }
-
-        .light-theme .ai-message pre .copy-button {
-            background-color: rgba(0, 0, 0, 0.1);
-            color: #333333;
-        }
-
-        .ai-message pre .copy-button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .light-theme .ai-message pre .copy-button:hover {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
-        .ai-message pre .copy-button.copied {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .light-theme .ai-message pre .copy-button.copied {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .firebase-auth-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .firebase-auth-modal.active {
-            display: flex;
-        }
-        .auth-modal-content {
-            background: #242628;
-            border-radius: 16px;
-            padding: 32px 28px 24px 28px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-            width: 100%;
-            max-width: 370px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-        }
-        .auth-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-        .auth-modal-title {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 600;
-            margin: 0;
-        }
-        .close-auth-modal {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 28px;
-            cursor: pointer;
-        }
-        .auth-form-group {
-            margin-bottom: 16px;
-        }
-        .auth-form-label {
-            color: #fff;
-            font-size: 14px;
-            margin-bottom: 6px;
-            display: block;
-        }
-        .auth-form-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #444;
-            background: #161618;
-            color: #fff;
-            font-size: 15px;
-        }
-        .auth-submit {
-            background: #4a9eff;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 12px 0;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-        }
-        .auth-submit:hover {
-            background: #357abd;
-        }
-        .auth-divider {
-            text-align: center;
-            color: #aaa;
-            margin: 18px 0 10px 0;
-            font-size: 13px;
-        }
-        .google-auth-btn {
-            background: #fff;
-            color: #242628;
-            border: none;
-            border-radius: 6px;
-            padding: 12px 0;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: background 0.2s;
-        }
-        .google-auth-btn:hover {
-            background: #f5f5f5;
-        }
-        .auth-error-message {
-            color: #ff5555;
-            font-size: 13px;
-            margin-top: 10px;
-            min-height: 18px;
-            text-align: center;
-        }
-        @media (max-width: 480px) {
             .auth-modal-content {
                 padding: 18px 8px 14px 8px;
                 max-width: 98vw;
             }
         }
+        
         html, body {
             max-width: 100vw;
             overflow-x: hidden;
         }
+
+
+        .ai-message pre {
+            background-color: #1e1e1e !important;
+            color: #e6e6e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 1em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .light-theme .ai-message pre {
+            background-color: #f5f5f5 !important;
+            color: #333;
+        }
+
+
+        .ai-message pre, .ai-message pre code {
+            background-clip: padding-box;
+        }
+
+        .ai-message pre code {
+            background: none !important;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+        }
+        body, .user-message, .ai-message, .input-text, .input-container, .message-container, .profile-modal, .firebase-auth-modal, .dropdown-menu, .title, .example-buttons, .error-message, .loading-icon, .auth-modal-content, .think-button, .circle-button, .chatList, .copy-button {
+            font-family: 'Merriweather', serif !important;
+        }
+
+
+        .user-message:lang(he), .ai-message:lang(he),
+        .user-message:lang(ar), .ai-message:lang(ar),
+        .user-message:lang(fa), .ai-message:lang(fa),
+        .user-message:lang(ur), .ai-message:lang(ur),
+        .user-message:lang(hi), .ai-message:lang(hi),
+        .user-message:lang(th), .ai-message:lang(th),
+        .user-message:lang(ko), .ai-message:lang(ko),
+        .user-message:lang(ja), .ai-message:lang(ja),
+        .user-message:lang(zh), .ai-message:lang(zh) {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+
+        .user-message:not(:lang(en)), .ai-message:not(:lang(en)) {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+
+        .input-container {
+            position: relative;
+            z-index: 10;
+        }
+        .input-container::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 36px;
+            z-index: -2;
+            background: linear-gradient(270deg, #ff0080, #7928ca, #007cf0, #00dfd8, #ff0080);
+            background-size: 400% 400%;
+            animation: rainbow-outline 6s linear infinite;
+        }
+        .input-container::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 30px;
+            background: #242628;
+            z-index: -1;
+
+        }
+        @keyframes rainbow-outline {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .input-container.moved-down::before,
+        .input-container.moved-down::after {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            #exampleButtons {
+                overflow-x: auto;
+                flex-wrap: nowrap !important;
+                justify-content: flex-start !important;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                padding-bottom: 8px;
+            }
+            #exampleButtons button {
+                min-width: 120px;
+                flex: 0 0 auto;
+            }
+        }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="loader"></div>
-        <div class="profile-container">
-            <div class="profile-icon" onclick="toggleDropdown()">
+<body class="bg-dark-bg m-0 h-screen flex flex-col font-merriweather font-normal overflow-hidden transition-colors duration-300 relative">
+
+    <div class="flex justify-end items-center px-5 py-2.5 sticky top-0 bg-dark-header z-10 transition-colors duration-300 flex-shrink-0 h-15 light-theme:bg-light-header">
+        <div class="relative inline-block flex items-center gap-2">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;"><i class="fab fa-github" style="font-size:22px;color:#fff;"></i></a>
+            <div class="bg-white rounded-full w-10 h-10 flex justify-center items-center text-black text-xl cursor-pointer transition-colors duration-300 light-theme:bg-gray-800 light-theme:text-white" onclick="toggleDropdown()">
                 <i class="fas fa-user"></i>
             </div>
-            <div class="dropdown-menu" id="dropdownMenu">
-                <div class="dropdown-item">Free User</div>
-                <button class="dropdown-button" onclick="newChat()">New Chat</button>
-                <button class="dropdown-button" id="theme-button" onclick="toggleTheme()">Switch to Light Theme</button>
+            <div class="hidden absolute top-12 right-0 bg-dark-card rounded-lg shadow-lg min-w-36 z-12 transition-colors duration-300 light-theme:bg-light-card" id="dropdownMenu">
+                <div class="px-4 py-2.5 text-white text-sm text-left cursor-default transition-colors duration-300 light-theme:text-gray-800">Free User</div>
+                <button class="px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover" onclick="newChat()">New Chat</button>
+                <button class="px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover" id="theme-button" onclick="toggleTheme()">Switch to Light Theme</button>
             </div>
         </div>
     </div>
-    <div class="title" id="title">Bixx AI By Omer</div>
-    <div class="message-container" id="messageContainer"></div>
-    <div class="input-container" id="inputContainer">
-        <input type="text" class="input-text" id="userInput" placeholder="Ask Bixx Anything">
-        <div class="button-group">
-            <button class="think-button" onclick="toggleThinkMode()">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                </svg>
-                Think
-            </button>
-            <button onclick="sendMessage()" class="circle-button">
-                <img src="up-arrow.png" alt="Send">
+    
+
+    <div class="text-white text-3xl text-center py-5 font-inter font-light absolute top-1/3 left-1/2 transform -translate-x-1/2 z-10 transition-all duration-300 w-11/12 max-w-4xl light-theme:text-gray-800 hidden" id="title">Bixx AI By Omer</div>
+    
+
+    <div class="flex-grow overflow-y-auto">
+        <div class="w-full max-w-4xl mx-auto px-5 flex flex-col relative gap-5 pb-44 pt-15" id="messageContainer"></div>
+    </div>
+    
+
+    <div class="input-container w-11/12 max-w-4xl h-32 bg-dark-card rounded-3xl flex flex-col justify-between p-4 shadow-lg fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-10 transition-all duration-300 border border-white/10 light-theme:bg-light-card light-theme:shadow-md" id="inputContainer">
+        <textarea class="text-gray-300 text-base flex-grow border-none bg-transparent outline-none whitespace-pre-wrap font-inter font-normal transition-colors duration-300 px-2.5 w-full box-border light-theme:text-gray-800" id="userInput" placeholder="Ask Bixx Anything" rows="2" style="resize: none;"></textarea>
+        <div style="position: relative; width: 100%; height: 100%;">
+            <button onclick="sendMessage()" class="bg-white rounded-full w-10 h-10 flex justify-center items-center text-black text-4xl font-bold p-0 border-none cursor-pointer light-theme:bg-gray-800 light-theme:text-white">
+                <img src="up-arrow.png" alt="Send" class="w-5 h-5 object-contain">
             </button>
         </div>
     </div>
-    <div class="example-buttons" id="exampleButtons">
-        <button class="example-button" onclick="useExamplePrompt('Generate me an image of a futuristic city')">
-            <i class="fas fa-image button-icon"></i>
-            Generate Image
-        </button>
-        <button class="example-button" onclick="useExamplePrompt('Explain quantum computing in simple terms')">
-            <i class="fas fa-brain button-icon"></i>
+    
+
+    <div class="flex gap-2 justify-center mt-5 opacity-100 transition-opacity duration-300 absolute bottom-1/3 left-1/2 transform -translate-x-1/2 w-11/12 max-w-96 px-5 flex-nowrap hidden" id="exampleButtons">
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Explain quantum computing in simple terms')">
+            <i class="fas fa-brain text-base" style="color:#FF9800;"></i>
             Learn Something
         </button>
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Give me an inspiring story')">
+            <i class="fas fa-lightbulb text-yellow-400" style="color:#FFD600;"></i>
+            Get Inspired
+        </button>
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Tell me a joke')">
+            <i class="fas fa-laugh-beam text-pink-500" style="color:#FF4081;"></i>
+            See a Joke
+        </button>
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Suggest a fun recipe')">
+            <i class="fas fa-utensils text-green-400" style="color:#4CAF50;"></i>
+            Try a Recipe
+        </button>
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Give me a motivational quote')">
+            <i class="fas fa-quote-left text-blue-400" style="color:#42A5F5;"></i>
+            Get a Quote
+        </button>
+        <button class="bg-dark-input text-white border border-white/30 py-3 px-3 rounded-2xl cursor-pointer font-inter text-sm font-medium transition-all duration-300 flex items-center gap-1.5 min-w-36 justify-center shadow-none whitespace-nowrap flex-1 max-w-30 light-theme:bg-white light-theme:text-gray-800 light-theme:border-black/30 light-theme:hover:border-black/50 light-theme:hover:bg-gray-100" onclick="useExamplePrompt('Tell me a fun fact')">
+            <i class="fas fa-star text-purple-400" style="color:#AB47BC;"></i>
+            Fun Fact
+        </button>
     </div>
 
-    <div class="profile-modal" id="profileModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Customize Your Profile</h3>
-                <button class="close-modal" onclick="closeProfileModal()">&times;</button>
+
+    <div class="hidden fixed inset-0 bg-black/50 z-50 justify-center items-center" id="profileModal">
+        <div class="bg-dark-card p-6 rounded-xl w-11/12 max-w-96 shadow-xl light-theme:bg-white">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-white text-xl font-semibold m-0 light-theme:text-gray-800">Customize Your Profile</h3>
+                <button class="bg-transparent border-none text-white text-2xl cursor-pointer p-0 light-theme:text-gray-800" onclick="closeProfileModal()">&times;</button>
             </div>
             <form id="profileForm" onsubmit="saveProfile(event)">
-                <div class="form-group">
-                    <label class="form-label" for="userName">Your Name</label>
-                    <input type="text" id="userName" class="form-input" placeholder="Enter your name">
+                <div class="mb-4">
+                    <label class="block text-white mb-2 text-sm light-theme:text-gray-800" for="userName">Your Name</label>
+                    <input type="text" id="userName" class="w-full p-2.5 border border-white/20 rounded-md bg-dark-input text-white text-sm transition-colors duration-300 light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800 focus:outline-none focus:border-blue-500" placeholder="Enter your name">
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="userOccupation">Your Occupation</label>
-                    <input type="text" id="userOccupation" class="form-input" placeholder="Enter your occupation">
+                <div class="mb-4">
+                    <label class="block text-white mb-2 text-sm light-theme:text-gray-800" for="userOccupation">Your Occupation</label>
+                    <input type="text" id="userOccupation" class="w-full p-2.5 border border-white/20 rounded-md bg-dark-input text-white text-sm transition-colors duration-300 light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800 focus:outline-none focus:border-blue-500" placeholder="Enter your occupation">
                 </div>
-                <button type="submit" class="save-profile">Save Profile</button>
+                <button type="submit" class="bg-blue-500 text-white border-none py-3 px-6 rounded-md text-sm font-medium cursor-pointer w-full transition-colors duration-300 hover:bg-blue-600">Save Profile</button>
             </form>
         </div>
     </div>
 
-    <div class="firebase-auth-modal" id="firebaseAuthModal">
-        <div class="auth-modal-content">
-            <div class="auth-modal-header">
-                <h3 class="auth-modal-title">Sign In / Sign Up</h3>
-                <button class="close-auth-modal" onclick="closeAuthModal()">&times;</button>
+
+    <div class="hidden fixed inset-0 bg-black/60 z-50 justify-center items-center" id="firebaseAuthModal">
+        <div class="bg-dark-card rounded-2xl p-8 shadow-2xl w-full max-w-96 relative flex flex-col items-stretch light-theme:bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white text-2xl font-semibold m-0 light-theme:text-gray-800">Sign In / Sign Up</h3>
+                <button class="bg-transparent border-none text-white text-3xl cursor-pointer light-theme:text-gray-800" onclick="closeAuthModal()">&times;</button>
             </div>
-            <form id="authForm" onsubmit="handleEmailAuth(event)">
-                <div class="auth-form-group">
-                    <label class="auth-form-label" for="authEmail">Email</label>
-                    <input type="email" id="authEmail" class="auth-form-input" placeholder="Enter your email" required>
+            <form id="authForm">
+                <div class="mb-4">
+                    <label class="text-white text-sm mb-1.5 block light-theme:text-gray-800" for="authEmail">Email</label>
+                    <input type="email" id="authEmail" class="w-full p-2.5 rounded-md border border-gray-600 bg-dark-input text-white text-base light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800" placeholder="Enter your email" required>
                 </div>
-                <div class="auth-form-group">
-                    <label class="auth-form-label" for="authPassword">Password</label>
-                    <input type="password" id="authPassword" class="auth-form-input" placeholder="Enter your password" required>
+                <div class="mb-4">
+                    <label class="text-white text-sm mb-1.5 block light-theme:text-gray-800" for="authPassword">Password</label>
+                    <input type="password" id="authPassword" class="w-full p-2.5 rounded-md border border-gray-600 bg-dark-input text-white text-base light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800" placeholder="Enter your password" required>
                 </div>
-                <button type="submit" class="auth-submit">Sign In / Sign Up</button>
+                <div class="flex gap-2.5">
+                  <button type="button" class="bg-blue-500 text-white border-none rounded-md py-3 text-base font-medium cursor-pointer w-full transition-colors duration-200 hover:bg-blue-600" onclick="handleSignIn()">Sign In</button>
+                  <button type="button" class="bg-green-600 text-white border-none rounded-md py-3 text-base font-medium cursor-pointer w-full transition-colors duration-200 hover:bg-green-700" onclick="handleSignUp()">Sign Up</button>
+                </div>
             </form>
-            <div class="auth-divider">or</div>
-            <button class="google-auth-btn" onclick="handleGoogleAuth()">
-                <i class="fab fa-google"></i> Continue with Google
+            <div class="text-center text-gray-400 my-4 text-sm">or</div>
+            <button class="bg-white text-dark-card border-none rounded-md py-3 text-base font-medium cursor-pointer flex items-center justify-center gap-2 shadow-md transition-colors duration-200 hover:bg-gray-100" onclick="handleGoogleAuth()">
+                <span class="inline-block w-5.5 h-5.5 align-middle mr-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="22" height="22">
+                    <g><path fill="#4285F4" d="M24 9.5c3.54 0 6.04 1.53 7.43 2.81l5.48-5.48C33.64 3.99 29.28 2 24 2 14.82 2 6.98 7.98 3.69 15.44l6.91 5.37C12.36 14.36 17.68 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.21-.43-4.73H24v9.01h12.42c-.54 2.9-2.18 5.36-4.66 7.01l7.19 5.6C43.98 37.36 46.1 31.45 46.1 24.55z"/><path fill="#FBBC05" d="M10.6 28.09c-1.04-3.09-1.04-6.41 0-9.5l-6.91-5.37C1.1 17.36 0 20.55 0 24s1.1 6.64 3.69 10.78l6.91-5.37z"/><path fill="#EA4335" d="M24 44c5.28 0 9.64-1.75 12.85-4.77l-7.19-5.6c-2.01 1.35-4.59 2.17-7.66 2.17-6.32 0-11.64-4.86-13.4-11.13l-6.91 5.37C6.98 40.02 14.82 46 24 46z"/><path fill="none" d="M0 0h48v48H0z"/></g>
+                  </svg>
+                </span>
+                Continue with Google
             </button>
-            <div class="auth-error-message" id="authErrorMessage"></div>
+            <div class="text-red-500 text-sm mt-2.5 min-h-4.5 text-center" id="authErrorMessage"></div>
         </div>
     </div>
 
@@ -1188,26 +729,28 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
-        function sendMessage() {
-            if (isWaitingForResponse || isWaitingForImage) return;
+        async function sendMessage() {
+            if (isWaitingForResponse) return;
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             if (!message || !currentUser) return;
             setChatSwitchingEnabled(false);
             // If no chat, create one and set title to first message
             if (!currentChatId) {
-                startNewChat(message);
+                await startNewChat(message);
                 moveInputDown();
             }
             // Save user message
-            saveMessage(currentUser.uid, currentChatId, {
+            await saveMessage(currentUser.uid, currentChatId, {
                 role: 'user',
                 content: message
             });
             chatMessages.push({ role: 'user', content: message });
+            lastUserMessageWasHebrew = containsHebrew(message);
+            console.log('chatMessages after sending:', chatMessages);
             renderMessages();
             input.value = '';
-            dropdownMenu.classList.remove('active');
+            dropdownMenu.classList.add('hidden');
             const exampleButtons = document.getElementById('exampleButtons');
             if (exampleButtons) exampleButtons.classList.add('hidden');
             setTimeout(scrollToBottom, 100);
@@ -1225,22 +768,19 @@
         const dropdownMenu = document.getElementById('dropdownMenu');
         const themeButton = document.getElementById('theme-button');
         const userInput = document.getElementById('userInput');
-        const sendButton = document.querySelector('.circle-button');
+        const sendButton = document.querySelector('button[onclick="sendMessage()"]');
 
         let messageSent = false;
-        let currentAiMessageDiv = null;
         let isWaitingForResponse = false;
-        let isWaitingForImage = false;
         let currentChatId = null;
         let currentUser = null;
         let chatMessages = [];
         let aiAccumulated = '';
         let aiIsStreaming = false;
         let aiStreamingDiv = null;
+        let pendingFirstMessage = null;
 
-        // Hide loader initially
-        const topLoader = document.querySelector('.header .loader');
-        if(topLoader) topLoader.style.display = 'none';
+
 
         function disableInput() {
             userInput.disabled = true;
@@ -1254,7 +794,7 @@
             sendButton.style.cursor = 'pointer';
         }
 
-        // Helper function to safely parse JSON
+
         function tryParseJSON(data) {
             try {
                 return JSON.parse(data);
@@ -1263,7 +803,7 @@
             }
         }
 
-        // Display error message in UI
+
         function displayErrorMessage(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error-message';
@@ -1273,35 +813,70 @@
             enableInput();
         }
 
-        // Improved text formatting function
+        function escapeHTML(text) {
+            return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         function formatText(text) {
-            // Handle code blocks
-            text = text.replace(/<code>(\w+)\n([\s\S]*?)<\/code>/g, (match, language, code) => {
-                return `<pre><button class="copy-button" onclick="copyCode(this)">Copy</button><code class="language-${language}">${code}</code></pre>`;
+            const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+            let lastIndex = 0;
+            let result = '';
+            let match;
+
+            while ((match = codeBlockRegex.exec(text)) !== null) {
+                const nonCode = text.slice(lastIndex, match.index);
+                result += formatNonCode(nonCode);
+
+                const language = match[1] || 'text';
+                const code = match[2];
+                result += `<pre><button class="copy-button" onclick="copyCode(this)">Copy</button><code class="language-${language}">${escapeHTML(code)}</code></pre>`;
+
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+            result += formatNonCode(text.slice(lastIndex));
+            return result;
+        }
+
+        function formatNonCode(text) {
+            text = text.replace(/^###\s?(.*)$/gm, '<h3>$1</h3>');
+            text = text.replace(/^##\s?(.*)$/gm, '<h2>$1</h2>');
+            text = text.replace(/^#\s?(.*)$/gm, '<h1>$1</h1>');
+
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+            text = text.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+            text = text.replace(/(?:^|\n)(- .+(?:\n- .+)*)/g, function(match) {
+                const items = match.trim().split('\n').map(line => line.replace(/^- /, '').trim());
+                return '<ul>' + items.map(item => `<li>${item}</li>`).join('') + '</ul>';
             });
-            
-            // Handle bold and italic
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
-            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
-            
-            // Handle newlines
+
+            text = text.replace(/(?:^|\n)((?:\d+\..+(?:\n\d+\..+)*)+)/g, function(match) {
+                const items = match.trim().split('\n').map(line => line.replace(/^\d+\.\s*/, '').trim());
+                return '<ol>' + items.map(item => `<li>${item}</li>`).join('') + '</ol>';
+            });
+
             text = text.replace(/\n/g, '<br>');
-            
+
             return text;
         }
 
-        // Function to copy code to clipboard
+
         function copyCode(button) {
             const codeBlock = button.nextElementSibling;
             const code = codeBlock.textContent;
             
             navigator.clipboard.writeText(code).then(() => {
-                // Change button text temporarily
                 const originalText = button.textContent;
                 button.textContent = 'Copied!';
                 button.classList.add('copied');
                 
-                // Reset button after 2 seconds
                 setTimeout(() => {
                     button.textContent = originalText;
                     button.classList.remove('copied');
@@ -1316,17 +891,15 @@
         }
 
         ws.onopen = () => {
-            // console.log('WebSocket Connected: Cake Baked By Omer AI🔥');
+            console.log('WebSocket connected');
         };
 
         ws.onerror = (error) => {
-            // console.error('WebSocket Error:', error);
             displayErrorMessage('WebSocket connection error. Please try again later.');
             setChatSwitchingEnabled(true);
         };
 
         ws.onclose = () => {
-            // console.log('WebSocket Connection Closed');
             displayErrorMessage('Connection closed. Please refresh the page.');
             setChatSwitchingEnabled(true);
         };
@@ -1335,7 +908,7 @@
             if (typeof event.data !== 'string' || !event.data.trim()) return;
             const data = tryParseJSON(event.data);
             if (!data) return;
-            // Start of AI response
+
             if (data.role === 'ai_start') {
                 aiAccumulated = '';
                 aiIsStreaming = true;
@@ -1346,218 +919,178 @@
                 scrollToBottom();
                 return;
             }
-            // Streaming AI content
+
             if (data.role === 'ai' && aiIsStreaming) {
                 if (data.content) {
                     aiAccumulated = data.content;
                     if (aiStreamingDiv) {
                         aiStreamingDiv.innerHTML = formatText(aiAccumulated);
-                        scrollToBottom();
+                        scrollToBottom(false);
                     }
-                }
-                // If prompt for image detected, show image placeholders/loaders
-                if (aiStreamingDiv && aiAccumulated.includes('_prompt:')) {
-                    // Remove any existing image placeholders
-                    const existingPlaceholders = messageContainer.querySelectorAll('.ai-message.image-generating');
-                    existingPlaceholders.forEach(placeholder => placeholder.remove());
-                    const aiMessageElement = document.createElement('div');
-                    aiMessageElement.className = 'ai-message image-generating';
-                    aiMessageElement.innerHTML = `
-                        <div class="flex-1">
-                            <div class="placeholder"></div>
-                            <div class="loader"></div>
-                        </div>
-                    `;
-                    messageContainer.appendChild(aiMessageElement);
-                    setTimeout(scrollToBottom, 300);
                 }
                 return;
             }
-            // End of AI response
+
+            if (data.role === 'chat_created') {
+                currentChatId = data.chatId;
+                if (currentUser) {
+                    chatMessages = await getChatMessages(currentUser.uid, data.chatId);
+                    renderMessages();
+                    moveInputDown();
+                    const chats = await getUserChats(currentUser.uid);
+                    renderChatList(chats);
+                }
+                if (pendingFirstMessage) {
+                    ws.send(JSON.stringify({
+                        type: 'message',
+                        content: pendingFirstMessage
+                    }));
+                    pendingFirstMessage = null;
+                }
+                return;
+            }
+
+            if (data.role === 'chat_loaded') {
+                console.log('Chat loaded by backend:', data.chatId);
+                currentChatId = data.chatId;
+                // Load messages for this chat
+                if (currentUser) {
+                    chatMessages = await getChatMessages(currentUser.uid, data.chatId);
+                    renderMessages();
+                }
+                return;
+            }
+
             if (data.role === 'ai_complete' && aiIsStreaming) {
                 aiIsStreaming = false;
                 setChatSwitchingEnabled(true);
+                
                 if (currentUser && currentChatId && aiAccumulated) {
-                    await saveMessage(currentUser.uid, currentChatId, {
-                        role: 'assistant',
-                        content: aiAccumulated
+                    try {
+                        console.log('Saving AI message to Firebase:', {
+                            uid: currentUser.uid,
+                            chatId: currentChatId,
+                            content: aiAccumulated.substring(0, 100) + '...'
+                        });
+                        
+                        await saveMessage(currentUser.uid, currentChatId, {
+                            role: 'assistant',
+                            content: aiAccumulated,
+                            rtl: lastUserMessageWasHebrew ? true : undefined
+                        });
+                        
+                        console.log('AI message saved successfully to Firebase');
+                        
+                        const aiMessage = { 
+                            role: 'assistant', 
+                            content: aiAccumulated, 
+                            rtl: lastUserMessageWasHebrew ? true : undefined 
+                        };
+                        chatMessages.push(aiMessage);
+                        await appendMessage(aiMessage);
+                        console.log('chatMessages after AI:', chatMessages);
+                    } catch (error) {
+                        console.error('Failed to save AI message to Firebase:', error);
+                        // Still add the message to the UI even if Firebase save fails
+                        const aiMessage = { 
+                            role: 'assistant', 
+                            content: aiAccumulated, 
+                            rtl: lastUserMessageWasHebrew ? true : undefined 
+                        };
+                        chatMessages.push(aiMessage);
+                        await appendMessage(aiMessage);
+                    }
+                } else {
+                    console.warn('Cannot save AI message - missing user or chat ID:', {
+                        hasUser: !!currentUser,
+                        hasChatId: !!currentChatId,
+                        hasContent: !!aiAccumulated
                     });
-                    // Only render messages if not expecting an image
-                    if (!aiAccumulated.includes('_prompt:')) {
-                        chatMessages.push({ role: 'assistant', content: aiAccumulated });
-                        renderMessages();
-                    }
                 }
+                
                 aiAccumulated = '';
-                aiStreamingDiv = null;
-                scrollToBottom();
-                return;
-            }
-            // Handle image messages as before
-            if (data.role === 'image') {
-                const aiMessageElements = messageContainer.querySelectorAll('.ai-message.image-generating');
-                const lastAiMessageElement = aiMessageElements[aiMessageElements.length - 1];
-                if (lastAiMessageElement) {
-                    const contentDiv = lastAiMessageElement.querySelector('.flex-1');
-                    if (contentDiv) {
-                        const loaders = contentDiv.querySelectorAll('.loader');
-                        const placeholders = contentDiv.querySelectorAll('.placeholder');
-                        const images = contentDiv.querySelectorAll('img');
-                        // --- DECODE BASE64 URL ---
-                        function decodeBase64Url(b64) {
-                            try {
-                                return decodeURIComponent(escape(window.atob(b64)));
-                            } catch (e) {
-                                return '';
-                            }
-                        }
-                        const imageUrl = decodeBase64Url(data.content);
-                        if (!imageUrl || !imageUrl.startsWith('http')) {
-                            contentDiv.textContent = 'Image failed to load (invalid URL)!';
-                            lastAiMessageElement.classList.remove('image-generating');
-                            lastAiMessageElement.classList.add('image-error');
-                            if (placeholders[0]) placeholders[0].remove();
-                            if (loaders[0]) loaders[0].remove();
-                            scrollToBottom();
-                            return;
-                        }
-                        if (images.length === 0) {
-                            const img = document.createElement('img');
-                            img.src = imageUrl;
-                            img.alt = '\u200B';
-                            Object.assign(img.style, {
-                                maxWidth: '100%',
-                                borderRadius: '8px',
-                                marginTop: '0',
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                zIndex: '2'
-                            });
-                            img.onclick = function() {
-                                const newWindow = window.open();
-                                newWindow.document.write(`
-                                    <html>
-                                    <head>
-                                        <title>Generated Image</title>
-                                        <style>
-                                            body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #161618; }
-                                            img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <img src="${imageUrl}" alt="\u200B">
-                                    </body>
-                                    </html>
-                                `);
-                            };
-                            img.style.cursor = 'pointer';
-                            img.onload = () => {
-                                if (placeholders[0]) placeholders[0].remove();
-                                if (loaders[0]) loaders[0].remove();
-                                scrollToBottom();
-                            };
-                            img.onerror = () => {
-                                contentDiv.textContent = 'Image failed to load!';
-                                lastAiMessageElement.classList.remove('image-generating');
-                                lastAiMessageElement.classList.add('image-error');
-                                if (placeholders[0]) placeholders[0].remove();
-                                if (loaders[0]) loaders[0].remove();
-                                scrollToBottom();
-                            };
-                            contentDiv.appendChild(img);
-                        } else if (images.length === 1) {
-                            const img = document.createElement('img');
-                            img.src = imageUrl;
-                            img.alt = '\u200B';
-                            Object.assign(img.style, {
-                                maxWidth: '100%',
-                                borderRadius: '8px',
-                                marginTop: '0',
-                                position: 'absolute',
-                                top: '50%',
-                                left: 'calc(50% + 270px)',
-                                transform: 'translate(-50%, -50%)',
-                                zIndex: '2'
-                            });
-                            img.onclick = function() {
-                                const newWindow = window.open();
-                                newWindow.document.write(`
-                                    <html>
-                                    <head>
-                                        <title>Generated Image</title>
-                                        <style>
-                                            body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #161618; }
-                                            img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <img src="${imageUrl}" alt="\u200B">
-                                    </body>
-                                    </html>
-                                `);
-                            };
-                            img.style.cursor = 'pointer';
-                            img.onload = () => {
-                                if (placeholders[1]) placeholders[1].remove();
-                                if (loaders[1]) loaders[1].remove();
-                                scrollToBottom();
-                            };
-                            img.onerror = () => {
-                                contentDiv.textContent = 'Second image failed to load!';
-                                lastAiMessageElement.classList.remove('image-generating');
-                                lastAiMessageElement.classList.add('image-error');
-                                if (placeholders[1]) placeholders[1].remove();
-                                if (loaders[1]) loaders[1].remove();
-                                scrollToBottom();
-                            };
-                            contentDiv.appendChild(img);
-                            lastAiMessageElement.classList.remove('image-generating');
-                        }
-                    }
+                if (aiStreamingDiv && aiStreamingDiv.parentNode) {
+                    aiStreamingDiv.parentNode.removeChild(aiStreamingDiv);
                 }
-                scrollToBottom();
+                aiStreamingDiv = null;
+                scrollToBottom(true);
+                lastUserMessageWasHebrew = false;
                 return;
             }
-            // All other messages (user, image, etc.)
+
             if (typeof origOnMessage === 'function') origOnMessage.call(ws, event);
         };
 
-        function scrollToBottom() {
+        function scrollToBottom(smooth = false) {
             const messageContainer = document.getElementById('messageContainer');
+            const scrollTarget = messageContainer.parentElement;
+
             setTimeout(() => {
-                messageContainer.scrollTo({ top: messageContainer.scrollHeight, behavior: 'smooth' });
-                // Also scroll input into view
-                document.getElementById('inputContainer').scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }, 50);
+                if (scrollTarget && scrollTarget.scrollTo) {
+                    scrollTarget.scrollTo({
+                        top: scrollTarget.scrollHeight,
+                        behavior: smooth ? 'smooth' : 'auto'
+                    });
+                }
+                document.getElementById('inputContainer').scrollIntoView({
+                    behavior: smooth ? 'smooth' : 'auto',
+                    block: 'end'
+                });
+            }, 10);
+        }
+
+
+        let lastUserMessageWasHebrew = false;
+        function containsHebrew(text) {
+            return /[\u0590-\u05FF]/.test(text);
         }
 
         const origSendMessage = sendMessage;
         sendMessage = async function() {
-            if (isWaitingForResponse || isWaitingForImage) return;
+            if (isWaitingForResponse) return;
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             if (!message || !currentUser) return;
             setChatSwitchingEnabled(false);
-            // If no chat, create one and set title to first message
             if (!currentChatId) {
-                await startNewChat(message);
                 moveInputDown();
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'chat_init',
+                        firstMessage: message
+                    }));
+                }
+                pendingFirstMessage = message;
+                input.value = '';
+                dropdownMenu.classList.add('hidden');
+                const exampleButtons = document.getElementById('exampleButtons');
+                if (exampleButtons) exampleButtons.classList.add('hidden');
+                setTimeout(scrollToBottom, 100);
+                return;
+            } else {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'chat_init',
+                        chatId: currentChatId
+                    }));
+                }
             }
-            // Save user message
             await saveMessage(currentUser.uid, currentChatId, {
                 role: 'user',
                 content: message
             });
             chatMessages.push({ role: 'user', content: message });
+            lastUserMessageWasHebrew = containsHebrew(message);
             renderMessages();
             input.value = '';
-            dropdownMenu.classList.remove('active');
+            dropdownMenu.classList.add('hidden');
             const exampleButtons = document.getElementById('exampleButtons');
             if (exampleButtons) exampleButtons.classList.add('hidden');
             setTimeout(scrollToBottom, 100);
-            ws.send(message);
+            ws.send(JSON.stringify({
+                type: 'message',
+                content: message
+            }));
         };
 
         function useExamplePrompt(prompt) {
@@ -1567,20 +1100,16 @@
         }
 
         function toggleDropdown() {
-            dropdownMenu.classList.toggle('active');
+            dropdownMenu.classList.toggle('hidden');
         }
 
         function newChat() {
             messageContainer.innerHTML = '';
             messageSent = false;
-            title.classList.remove('hidden');
-            inputContainer.classList.remove('moved-down');
-            const exampleButtons = document.getElementById('exampleButtons');
-            if (exampleButtons) {
-                exampleButtons.classList.remove('hidden');
-            }
-            currentAiMessageDiv = null;
-            dropdownMenu.classList.remove('active');
+            chatMessages = [];
+            currentChatId = null;
+            dropdownMenu.classList.add('hidden');
+            moveInputMiddle();
             scrollToBottom();
         }
 
@@ -1588,39 +1117,40 @@
             document.body.classList.toggle('light-theme');
             const isLight = document.body.classList.contains('light-theme');
             themeButton.textContent = isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme';
-            dropdownMenu.classList.remove('active');
+            dropdownMenu.classList.add('hidden');
         }
 
-        function toggleThinkMode() {
-            // Add your think mode logic here
-            // console.log('Think mode toggled');
-        }
-
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !isWaitingForResponse && !isWaitingForImage) {
+        document.getElementById('userInput').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                // Ctrl+Enter or Cmd+Enter sends the message
+                e.preventDefault();
                 sendMessage();
+            } else if (e.key === 'Enter' && !e.shiftKey) {
+                // Enter alone inserts a newline (default for textarea)
+                // Do nothing, let it insert a newline
             }
+            // Shift+Enter also inserts a newline by default
         });
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.profile-container')) {
-                dropdownMenu.classList.remove('active');
+            if (!e.target.closest('.relative.inline-block')) {
+                dropdownMenu.classList.add('hidden');
             }
         });
 
         scrollToBottom();
 
-        // Profile Customization Functions
+
         function openProfileModal() {
-            document.getElementById('profileModal').classList.add('active');
-            // Load saved profile data if exists
+            document.getElementById('profileModal').classList.remove('hidden');
+
             const savedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
             document.getElementById('userName').value = savedProfile.name || '';
             document.getElementById('userOccupation').value = savedProfile.occupation || '';
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('active');
+            document.getElementById('profileModal').classList.add('hidden');
         }
 
         function saveProfile(event) {
@@ -1630,10 +1160,10 @@
                 occupation: document.getElementById('userOccupation').value
             };
             
-            // Save to localStorage
+
             localStorage.setItem('userProfile', JSON.stringify(profile));
             
-            // Send to server via WebSocket
+
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'profile_update',
@@ -1644,36 +1174,45 @@
             closeProfileModal();
         }
 
-        // Add click event listener to the profile customization button
+
         document.addEventListener('DOMContentLoaded', function() {
             const customizeButton = document.createElement('button');
-            customizeButton.className = 'dropdown-button';
+            customizeButton.className = 'px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover';
             customizeButton.innerHTML = '<i class="fas fa-user-edit"></i> Customize Profile';
             customizeButton.onclick = openProfileModal;
             
-            // Find the dropdown menu and insert the button
-            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            const dropdownMenu = document.querySelector('#dropdownMenu');
             if (dropdownMenu) {
                 dropdownMenu.insertBefore(customizeButton, dropdownMenu.firstChild);
             }
         });
 
-        // Firebase config from server.js lines 17-34
+
         const firebaseConfig = {
-            apiKey: "AIzaSyBqPrOTa6ntMKuG4TyC3BOxAl9juegddEs",
-            authDomain: "bixx-b9a19.firebaseapp.com",
-            projectId: "bixx-b9a19",
-            storageBucket: "bixx-b9a19.firebasestorage.app",
-            messagingSenderId: "144965345442",
-            appId: "1:144965345442:web:6ee6e146210491448ef7fb",
-            measurementId: "G-7YJXNH8JJE"
-        };
+
+apiKey: "AIzaSyBqztQE_BE7_rqbqpnlR_Nbwf_ZjkdC4zk",
+
+authDomain: "bixxproject.firebaseapp.com",
+
+projectId: "bixxproject",
+
+storageBucket: "bixxproject.firebasestorage.app",
+
+messagingSenderId: "951126562805",
+
+appId: "1:951126562805:web:5a35b47f71e7b4217532bc",
+
+measurementId: "G-6YHFL3FN51"
+
+};
+
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Firestore helpers for chat sessions/messages
-        // Each user: users/{uid}/chats/{chatId}/messages/{messageId}
+
         async function createChatSession(uid, title = "New Chat") {
             const chatRef = await db.collection('users').doc(uid).collection('chats').add({
                 title,
@@ -1684,11 +1223,25 @@
         }
 
         async function saveMessage(uid, chatId, message) {
-            // message: {role: 'user'|'assistant', content: string, timestamp: Date}
-            return db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').add({
-                ...message,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            try {
+                console.log('Attempting to save message:', {
+                    uid,
+                    chatId,
+                    role: message.role,
+                    contentLength: message.content?.length || 0
+                });
+                
+                const result = await db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').add({
+                    ...message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log('Message saved successfully with ID:', result.id);
+                return result;
+            } catch (error) {
+                console.error('Error saving message to Firebase:', error);
+                throw error;
+            }
         }
 
         async function getUserChats(uid) {
@@ -1701,42 +1254,43 @@
             return snapshot.docs.map(doc => doc.data());
         }
 
-        // Modal open/close helpers
+
         function openAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.add('active');
+            document.getElementById('firebaseAuthModal').classList.remove('hidden');
         }
         function closeAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.remove('active');
+            document.getElementById('firebaseAuthModal').classList.add('hidden');
             document.getElementById('authErrorMessage').textContent = '';
         }
 
-        // Email/password auth handler
-        async function handleEmailAuth(event) {
-            event.preventDefault();
+
+        async function handleSignIn() {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
             const errorDiv = document.getElementById('authErrorMessage');
             errorDiv.textContent = '';
             try {
-                // Try sign in first
                 await auth.signInWithEmailAndPassword(email, password);
                 closeAuthModal();
             } catch (signInErr) {
-                if (signInErr.code === 'auth/user-not-found') {
-                    // If user not found, try sign up
-                    try {
-                        await auth.createUserWithEmailAndPassword(email, password);
-                        closeAuthModal();
-                    } catch (signUpErr) {
-                        errorDiv.textContent = signUpErr.message;
-                    }
-                } else {
-                    errorDiv.textContent = signInErr.message;
-                }
+                errorDiv.textContent = signInErr.message;
             }
         }
 
-        // Google auth handler
+        async function handleSignUp() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authErrorMessage');
+            errorDiv.textContent = '';
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+                closeAuthModal();
+            } catch (signUpErr) {
+                errorDiv.textContent = signUpErr.message;
+            }
+        }
+
+
         async function handleGoogleAuth() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
@@ -1747,35 +1301,44 @@
             }
         }
 
-        // Show modal on page load if not logged in
+
         auth.onAuthStateChanged(async user => {
             if (!user) {
                 openAuthModal();
                 chatListDiv.style.display = 'none';
+                showChatMenuBtn.style.display = 'none';
                 showAccountUI(false);
                 moveInputMiddle();
             } else {
                 closeAuthModal();
                 currentUser = user;
                 showAccountUI(true);
+                
+                // Send authentication token to backend
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    const token = await user.getIdToken();
+                    ws.send(JSON.stringify({
+                        type: 'auth',
+                        token: token
+                    }));
+                }
+                
                 const chats = await getUserChats(user.uid);
                 renderChatList(chats);
-                // Do NOT load or create a chat automatically
-                // Just show chat list, title, and example buttons
                 moveInputMiddle();
-                // Clear chat area
-                chatMessages = [];
                 renderMessages();
                 currentChatId = null;
+                chatListDiv.style.display = 'none';
+                showChatMenuBtn.style.display = 'flex';
             }
         });
 
-        // Minimal chat list UI
+
         const chatListDiv = document.createElement('div');
         chatListDiv.id = 'chatList';
         chatListDiv.style = `
             position:fixed;left:0;top:0;width:250px;height:100vh;background:#23272a;color:#fff;z-index:100;overflow-y:auto;padding:0;display:none;box-shadow:2px 0 16px rgba(0,0,0,0.18);border-right:1px solid #23272a;transition:all 0.2s;border-top-right-radius:18px;border-bottom-right-radius:18px;backdrop-filter: blur(4px);`
-        // Add a hide button to the chat menu
+
         const hideChatBtn = document.createElement('button');
         hideChatBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
         hideChatBtn.title = 'Hide Chats';
@@ -1788,15 +1351,23 @@
             showChatMenuBtn.style.display = 'flex';
         };
         chatListDiv.appendChild(hideChatBtn);
-        // Floating show button
+
         const showChatMenuBtn = document.createElement('button');
         showChatMenuBtn.id = 'showChatMenuBtn';
         showChatMenuBtn.innerHTML = '<i class="fas fa-comments"></i>';
         showChatMenuBtn.title = 'Show Chats';
         showChatMenuBtn.style = `
-            position:fixed;left:18px;top:18px;width:48px;height:48px;background:#4a9eff;color:#fff;border:none;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.18);font-size:22px;z-index:120;display:none;align-items:center;justify-content:center;transition:background 0.2s;`
-        showChatMenuBtn.onmouseover = () => showChatMenuBtn.style.background = '#357abd';
-        showChatMenuBtn.onmouseout = () => showChatMenuBtn.style.background = '#4a9eff';
+            position:fixed;left:18px;top:18px;width:48px;height:48px;background:#000;color:#fff;border:none;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.18);font-size:22px;z-index:120;display:none;align-items:center;justify-content:center;transition:background 0.2s;`
+        showChatMenuBtn.onmouseover = () => {
+            showChatMenuBtn.style.background = '#ffffff';
+            const icon = showChatMenuBtn.querySelector('i');
+            if (icon) icon.style.color = '#000';
+        };
+        showChatMenuBtn.onmouseout = () => {
+            showChatMenuBtn.style.background = '#000';
+            const icon = showChatMenuBtn.querySelector('i');
+            if (icon) icon.style.color = '#fff';
+        };
         showChatMenuBtn.onclick = () => {
             chatListDiv.style.display = 'block';
             showChatMenuBtn.style.display = 'none';
@@ -1806,63 +1377,228 @@
 
         function renderChatList(chats) {
             chatListDiv.innerHTML = '';
-            chatListDiv.appendChild(hideChatBtn); // Always add hide button at the top
+            chatListDiv.appendChild(hideChatBtn);
+            
             const headerDiv = document.createElement('div');
-            headerDiv.style = 'font-weight:700;padding:18px 20px 10px 20px;font-size:18px;letter-spacing:0.5px;';
+            headerDiv.style = 'font-weight:700;padding:18px 20px 10px 20px;font-size:18px;letter-spacing:0.5px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;';
             headerDiv.textContent = 'Your Chats';
             chatListDiv.appendChild(headerDiv);
-            chats.forEach(chat => {
-                const btn = document.createElement('button');
-                btn.textContent = chat.title ? chat.title.slice(0, 32) : 'Untitled';
-                btn.title = chat.title;
-                btn.style = `
-                    display:flex;align-items:center;width:90%;margin:8px auto;padding:12px 16px 12px 14px;background:#18191a;color:#fff;border:none;border-radius:10px;text-align:left;cursor:pointer;font-size:15px;gap:10px;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.06);`
-                btn.onmouseover = () => btn.style.background = '#23272a';
-                btn.onmouseout = () => btn.style.background = '#18191a';
-                btn.innerHTML = `<i class='fas fa-comments' style='font-size:16px;opacity:0.7;'></i> <span style='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>${btn.textContent}</span>`;
-                btn.onclick = () => loadChat(chat.id);
-                chatListDiv.appendChild(btn);
-            });
-            // New chat button
+            
             const newBtn = document.createElement('button');
-            newBtn.innerHTML = `<i class='fas fa-plus-circle' style='font-size:17px;'></i> <span style='margin-left:7px;'>New Chat</span>`;
+            newBtn.innerHTML = `<i class='fas fa-plus-circle' style='font-size:17px;'></i> <span style='margin-left:7px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;'>New Chat</span>`;
             newBtn.style = `
-                display:block;width:90%;margin:22px auto 0 auto;padding:12px 0;background:#4a9eff;color:#fff;border:none;border-radius:10px;text-align:center;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.08);`
+                display:block;width:90%;margin:12px auto;padding:12px 0;background:#4a9eff;color:#fff;border:none;border-radius:10px;text-align:center;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.08);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;`
             newBtn.onmouseover = () => newBtn.style.background = '#357abd';
             newBtn.onmouseout = () => newBtn.style.background = '#4a9eff';
             newBtn.onclick = () => startNewChat();
             chatListDiv.appendChild(newBtn);
-            chatListDiv.style.display = 'block';
+            
+            const searchDiv = document.createElement('div');
+            searchDiv.style = 'padding:0 20px;margin:12px 0;';
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Search chats...';
+            searchInput.style = `
+                width:100%;padding:10px 12px;background:#18191a;color:#fff;border:1px solid #333;border-radius:8px;font-size:14px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+                outline:none;transition:border-color 0.2s;
+            `;
+            searchInput.onfocus = () => searchInput.style.borderColor = '#4a9eff';
+            searchInput.onblur = () => searchInput.style.borderColor = '#333';
+            searchInput.oninput = (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const chatButtons = chatListDiv.querySelectorAll('.chat-button');
+                chatButtons.forEach(btn => {
+                    const chatTitle = btn.getAttribute('data-title').toLowerCase();
+                    if (chatTitle.includes(searchTerm)) {
+                        btn.style.display = 'flex';
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                });
+            };
+            searchDiv.appendChild(searchInput);
+            chatListDiv.appendChild(searchDiv);
+            
+            const chatsContainer = document.createElement('div');
+            chatsContainer.style = 'flex:1;overflow-y:auto;';
+            
+            chats.forEach(chat => {
+                const btn = document.createElement('button');
+                btn.className = 'chat-button';
+                btn.setAttribute('data-title', chat.title || 'Untitled');
+                const displayTitle = chat.title ? chat.title.slice(0, 32) : 'Untitled';
+                btn.title = chat.title;
+                btn.style = `
+                    display:flex;align-items:center;width:90%;margin:8px auto;padding:12px 16px 12px 14px;background:#18191a;color:#fff;border:none;border-radius:10px;text-align:left;cursor:pointer;font-size:15px;gap:10px;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+                `;
+                btn.onmouseover = () => btn.style.background = '#23272a';
+                btn.onmouseout = () => btn.style.background = '#18191a';
+                btn.innerHTML = `<i class='fas fa-comments' style='font-size:16px;opacity:0.7;'></i> <span style='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;'>${displayTitle}</span>`;
+                btn.onclick = () => loadChat(chat.id);
+                chatsContainer.appendChild(btn);
+            });
+            
+            chatListDiv.appendChild(chatsContainer);
         }
 
         async function loadChat(chatId) {
             if (!currentUser) return;
             currentChatId = chatId;
+
+            // Initialize backend with this chat
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'chat_init',
+                    chatId: chatId
+                }));
+            }
+
             chatMessages = await getChatMessages(currentUser.uid, chatId);
             renderMessages();
         }
 
-        function renderMessages() {
+
+        function detectLanguage(text) {
+            if (/[\u0590-\u05FF]/.test(text)) return 'he';
+            if (/[\u0600-\u06FF]/.test(text)) return 'ar';
+            if (/[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text)) return 'fa';
+            if (/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text)) return 'ur';
+            if (/[\u0900-\u097F]/.test(text)) return 'hi';
+            if (/[\u0E00-\u0E7F]/.test(text)) return 'th';
+            if (/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/.test(text)) return 'ko';
+            if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) return 'ja';
+            if (/[\u4E00-\u9FFF]/.test(text)) return 'zh';
+            return 'en';
+        }
+
+
+        async function appendMessage(msg) {
+            const messageContainer = document.getElementById('messageContainer');
+            const div = document.createElement('div');
+            div.className = msg.role === 'user' ? 'user-message' : 'ai-message';
+            div.innerHTML = formatText(msg.content);
+            
+            const detectedLang = detectLanguage(msg.content);
+            if (detectedLang !== 'en') {
+                div.setAttribute('lang', detectedLang);
+                div.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+            }
+            
+            if (msg.role === 'assistant' && msg.rtl) {
+                div.style.direction = 'rtl';
+                div.style.textAlign = 'right';
+            }
+            messageContainer.appendChild(div);
+
+            if (msg.role === 'assistant') {
+                const wikiMatch = msg.content.match(/_wiki:\s*([\w\s\-\(\)]+)/i);
+                if (wikiMatch) {
+                    let topic = wikiMatch[1].trim();
+                    topic = topic.replace(/^_+|_+$/g, '');
+                    const wikiDiv = document.createElement('div');
+                    wikiDiv.className = 'ai-message';
+                    wikiDiv.innerHTML = `<em>Searching Wikipedia for <strong>${topic}</strong>...</em>`;
+                    messageContainer.appendChild(wikiDiv);
+                    scrollToBottom();
+                    try {
+                        const resp = await fetch(`/wiki/${encodeURIComponent(topic)}`);
+                        if (!resp.ok) {
+                            wikiDiv.innerHTML = `<span style='color:red;'>Wikipedia article not found for <strong>${topic}</strong>.</span>`;
+                        } else {
+                            const data = await resp.json();
+                            wikiDiv.innerHTML = `<h3>Wikipedia: ${topic}</h3><div style='white-space:pre-line;'>${formatText(data.extract)}</div>`;
+                        }
+                    } catch (err) {
+                        wikiDiv.innerHTML = `<span style='color:red;'>Error fetching Wikipedia article for <strong>${topic}</strong>.</span>`;
+                    }
+                    scrollToBottom();
+                }
+            }
+
+            if (chatMessages.length > 0) {
+                moveInputDown();
+            } else {
+                moveInputMiddle();
+            }
+            scrollToBottom();
+        }
+
+        async function renderMessages() {
             const messageContainer = document.getElementById('messageContainer');
             messageContainer.innerHTML = '';
-            chatMessages.forEach(msg => {
+            console.log('Rendering messages:', chatMessages);
+            chatMessages.forEach(async (msg, idx) => {
                 const div = document.createElement('div');
                 div.className = msg.role === 'user' ? 'user-message' : 'ai-message';
                 div.innerHTML = formatText(msg.content);
+                
+
+                const detectedLang = detectLanguage(msg.content);
+                if (detectedLang !== 'en') {
+                    div.setAttribute('lang', detectedLang);
+                    div.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+                }
+                
+                if (msg.role === 'assistant' && msg.rtl) {
+                    div.style.direction = 'rtl';
+                    div.style.textAlign = 'right';
+                }
                 messageContainer.appendChild(div);
+
+
+                if (msg.role === 'assistant') {
+                    const wikiMatch = msg.content.match(/_wiki:\s*([\w\s\-\(\)]+)/i);
+                    if (wikiMatch) {
+                        let topic = wikiMatch[1].trim();
+
+                        topic = topic.replace(/^_+|_+$/g, '');
+
+                        const wikiDiv = document.createElement('div');
+                        wikiDiv.className = 'ai-message';
+                        wikiDiv.innerHTML = `<em>Searching Wikipedia for <strong>${topic}</strong>...</em>`;
+                        messageContainer.appendChild(wikiDiv);
+                        scrollToBottom();
+
+                        try {
+                            const resp = await fetch(`/wiki/${encodeURIComponent(topic)}`);
+                            if (!resp.ok) {
+                                wikiDiv.innerHTML = `<span style='color:red;'>Wikipedia article not found for <strong>${topic}</strong>.</span>`;
+                            } else {
+                                const data = await resp.json();
+                                wikiDiv.innerHTML = `<h3>Wikipedia: ${topic}</h3><div style='white-space:pre-line;'>${formatText(data.extract)}</div>`;
+                            }
+                        } catch (err) {
+                            wikiDiv.innerHTML = `<span style='color:red;'>Error fetching Wikipedia article for <strong>${topic}</strong>.</span>`;
+                        }
+                        scrollToBottom();
+                    }
+                }
             });
+
+            if (chatMessages.length > 0) {
+                moveInputDown();
+            } else {
+                moveInputMiddle();
+            }
             scrollToBottom();
         }
 
         async function startNewChat(firstMessage) {
             if (!currentUser) return;
-            currentChatId = await createChatSession(currentUser.uid, firstMessage || 'New Chat');
+            
+            // If we have a first message, let the backend create the chat
             if (firstMessage) {
-                await db.collection('users').doc(currentUser.uid).collection('chats').doc(currentChatId).update({
-                    title: firstMessage,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'chat_init',
+                        firstMessage: firstMessage
+                    }));
+                }
+                return;
             }
+            
+            // For manual "New Chat" button, create chat locally
+            currentChatId = await createChatSession(currentUser.uid, 'New Chat');
             chatMessages = [];
             renderMessages();
             moveInputMiddle();
@@ -1870,7 +1606,7 @@
             renderChatList(chats);
         }
 
-        // --- INPUT CONTAINER POSITION LOGIC ---
+
         function moveInputDown() {
             document.getElementById('inputContainer').classList.add('moved-down');
             document.getElementById('title').classList.add('hidden');
@@ -1883,9 +1619,9 @@
             const exampleButtons = document.getElementById('exampleButtons');
             if (exampleButtons) exampleButtons.classList.remove('hidden');
         }
-        // --- END INPUT CONTAINER POSITION LOGIC ---
 
-        // --- HEADER: Show Sign Up if not signed in, hide account circle ---
+
+
         let signUpBtn = document.getElementById('signUpBtn');
         if (!signUpBtn) {
             signUpBtn = document.createElement('button');
@@ -1893,11 +1629,11 @@
             signUpBtn.textContent = 'Sign Up';
             signUpBtn.style = 'margin-left:16px;padding:8px 18px;border-radius:20px;background:#4a9eff;color:#fff;border:none;font-size:15px;font-weight:500;cursor:pointer;transition:background 0.2s;';
             signUpBtn.onclick = openAuthModal;
-            const header = document.querySelector('.header');
+            const header = document.querySelector('.flex.justify-end');
             header.appendChild(signUpBtn);
         }
         function showAccountUI(signedIn) {
-            const profileContainer = document.querySelector('.profile-container');
+            const profileContainer = document.querySelector('.relative.inline-block');
             if (signedIn) {
                 profileContainer.style.display = '';
                 signUpBtn.style.display = 'none';
@@ -1906,9 +1642,9 @@
                 signUpBtn.style.display = '';
             }
         }
-        // --- END HEADER ---
 
-        // --- CSS: input container centered by default, moves down with .moved-down ---
+
+
         (function() {
             let styleTag = document.getElementById('inputContainerStyleFix');
             if (!styleTag) {
@@ -1920,7 +1656,7 @@
 .input-container {
     width: 90%;
     max-width: 800px;
-    height: 100px;
+    height: 128px;
     background-color: #242628;
     border-radius: 25px;
     display: flex;
@@ -1942,34 +1678,22 @@
 }
 `;
         })();
-        // --- END CSS ---
 
-        // --- JS: ensure input is centered on load/login, moves down after first message ---
+
         document.addEventListener('DOMContentLoaded', function() {
             moveInputMiddle();
+            chatListDiv.style.display = 'none';
+            showChatMenuBtn.style.display = 'flex';
         });
 
-        function moveInputDown() {
-            document.getElementById('inputContainer').classList.add('moved-down');
-            document.getElementById('title').classList.add('hidden');
-            const exampleButtons = document.getElementById('exampleButtons');
-            if (exampleButtons) exampleButtons.classList.add('hidden');
-        }
-        function moveInputMiddle() {
-            document.getElementById('inputContainer').classList.remove('moved-down');
-            document.getElementById('title').classList.remove('hidden');
-            const exampleButtons = document.getElementById('exampleButtons');
-            if (exampleButtons) exampleButtons.classList.remove('hidden');
-        }
 
-        // --- DISABLE CHAT SWITCHING DURING AI STREAMING ---
         function setChatSwitchingEnabled(enabled) {
-            // Disable chat list buttons
+
             const chatListDiv = document.getElementById('chatList');
             if (chatListDiv) {
                 const chatButtons = chatListDiv.querySelectorAll('button');
                 chatButtons.forEach(btn => {
-                    // Only disable chat switch and new chat buttons, not section headers
+
                     btn.disabled = !enabled;
                     if (!enabled) {
                         btn.style.opacity = '0.5';
@@ -1980,7 +1704,7 @@
                     }
                 });
             }
-            // Disable 'New Chat' in dropdown
+
             const dropdownNewChatBtn = document.querySelector('.dropdown-menu .dropdown-button[onclick="newChat()"]');
             if (dropdownNewChatBtn) {
                 dropdownNewChatBtn.disabled = !enabled;
