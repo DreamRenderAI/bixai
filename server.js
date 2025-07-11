@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
@@ -7,6 +8,12 @@ const Cerebras = require('@cerebras/cerebras_cloud_sdk');
 const https = require('https');
 const axios = require('axios');
 const admin = require('firebase-admin');
+const serviceAccount = require('./bixx-b9a19-firebase-adminsdk-fbsvc-e2295a581a.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const db = getFirestore();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,74 +23,26 @@ const cerebras = new Cerebras({
     apiKey: process.env.CEREBRAS_API_KEY
 });
 
-// Initialize Firebase Admin SDK
-const serviceAccount = {
-    "type": "service_account",
-    "project_id": "bixxproject",
-    "private_key_id": "fa861b7e7acf79119194c866f35484e5fed373ec",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCr1txjib7XfLMK\nHWp9634dRdLouOnrKBJTCYd4+Ua1bZpYe7LwyNM/NAMhTktpdXGy++vboQ+jv4Ap\nEvHjgOAiHTRTj1q5dLOM7Pz+UYjt5bTRyaYCWF9OHDAPrExRKvGHuzDbR1+XEWWJ\nxjJqz2dUSMfDd3Q/9/4RaFMoEEm/lpmGK6OUneZXHBdwBfueA2ir6NpRjLLG+qy8\nuzjvUbmnKHvureyeiHdCaRUZuO7jjRekw94TGBsxikkldgqcjrCYIDeJCKh9ybWk\ne0dwVI3g+vFLuGAFZQ+CCLxfATYtuRd9CfmYT7PHw0liM647QvmZbbK8oc9ii7Z1\n8HKXUZFfAgMBAAECggEALzahJg4mK8G81YYgiMlnxLY3DS8lQjGn2z3OhYwEA/xB\nwJb4ItUiyYZKZ9/Bs4+LtlAmTRlzGRwYI/DrGgWCT40zn9PO6w6n+IvytROE6kxH\nQq7DWHiccvMmt1+xNkn0w8TIVy9Ekda7Tb/xgUxMCSnYDRoojBzgpzrBQkw7XxKX\nvR0fXC/mlzEqxopVQVEBc5WOsng4nRpXTPxgPkzUEVh53IrEzhGH2rJqsBxcRVuD\nTtw6fHxbXmhfmBg+aO8ZfNJgUzLyyVYax0ZbyeNSelqQsF5bLq9hXbDlRlZFLvpB\njqshUE0+tFOiV5Fo90VUvtrS/6mpBsMGhRooTwStuQKBgQDhZih53q1QlnvoV61w\nv0fQN3Ambpkw8j1H1Fb9fS1n30zlRv7LSo9+5vWdZpKPNBMDWoJNyX5xJ72h/9sZ\nP6Eoncj+YMGvZx4jidlEdX3XdV41caPwYY1G6KfEGJJBHPimL0p4FfZugUv+NKiA\nnkNufL7m3zPNHJOAoxXkUhpVCQKBgQDDKzXVP+uG33kfe1aBVdqkT4yx7JdvpItm\nscnNjWjDLHiy1xMtkj0V1xmuYqxivwMZ6FmAEeK9+yjUUng13ZIv/x6dqCfzlvA1\njXDl1qIh8RMVVc2reNepehciROPmT8qJRlhs1qe8EKu7InU2WNvNKXhXAf5qkFpG\nlXKWYsX1JwKBgAwaTywUD9xW6DpWkuKN8s40W9pEcAdXyoCT30PnN8vvCpL5F+9U\nhpX60s9r1YzI8AhrELoaiqaKyrzrHxmg+AdVSZiXG29OqyifW0I4yNQL4k4eVv4u\nTsay8WcvJpNGefd6bJY8H6pZWPpCW5XkaZyCKEH/VCm8UhNDLoa+/dj5AoGBAKTY\nCF4X4R1H/4wBpu0S0NtbfWCCjt3zQvL4U5TUTZocI84aLs6c6A9cYQqTuTqmTz5A\nq+eqM7N3QeMjzPjiLqlveDJ9Z1EtObJhxuu6P7MfZZjtogukw7MXthZxzXQoDM+p\npOI44+/KvOIQlqPSpcRBtKz4uCTVzAo2DFTNFJqdAoGBAMg37mxHLm6BV5AaiZ6F\nNxzD2rdSyZOp47YWp1fS0JH7CTajCkliBYJ4vow+/gMnesNZbxkMEdCb80P4inv6\nTMsNkYTkFdw9ErqQK2ImYSGzDtJg5qo1TS3WHHxVE7bAmyDVFDySRGm0ClC2LG21\nxHiaETyJWsQJPsmWC8UAQJ/t\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-fbsvc@bixxproject.iam.gserviceaccount.com",
-    "client_id": "115601538713502378971",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bixxproject.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-};
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: "bixxproject"
-});
-
-const db = admin.firestore();
-
-// Firebase helper functions
-async function saveMessageToFirebase(uid, chatId, message) {
-    try {
-        await db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').add({
-            ...message,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log(`Message saved to Firebase for user ${uid}, chat ${chatId}`);
-        return true;
-    } catch (error) {
-        console.error('Error saving message to Firebase:', error);
-        return false;
-    }
-}
-
-async function createChatSession(uid, title = "New Chat") {
-    try {
-        const chatRef = await db.collection('users').doc(uid).collection('chats').add({
-            title,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log(`Chat session created for user ${uid}: ${chatRef.id}`);
-        return chatRef.id;
-    } catch (error) {
-        console.error('Error creating chat session:', error);
-        return null;
-    }
-}
-
-async function updateChatTitle(uid, chatId, title) {
-    try {
-        await db.collection('users').doc(uid).collection('chats').doc(chatId).update({
-            title,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        console.log(`Chat title updated for user ${uid}, chat ${chatId}: ${title}`);
-        return true;
-    } catch (error) {
-        console.error('Error updating chat title:', error);
-        return false;
-    }
-}
+// Remove all chat and message saving logic, in-memory store, helper functions, and endpoints
+// Only keep authentication and WebSocket/AI logic
 
 // Serve static files from the 'public' folder
 app.use(express.static('public'));
+app.use(cors());
+app.use(express.json());
+
+// AUTH ENDPOINTS
+// Get current user (by Firebase ID token)
+app.get('/api/user', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    res.json({ user: decoded });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
 
 // Add Wikipedia extract endpoint
 app.get('/wiki/:topic', async (req, res) => {
@@ -109,6 +68,41 @@ app.get('/wiki/:topic', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch Wikipedia extract.' });
     }
+});
+
+// Get all chats for the authenticated user
+app.get('/api/chats', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    const email = decoded.email;
+    const userChatsSnap = await db.collection('chats').doc(email).collection('userChats').orderBy('updatedAt', 'desc').get();
+    const chats = userChatsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ chats });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
+// Get all messages for a chat (authenticated)
+app.get('/api/chats/:chatId/messages', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    const email = decoded.email;
+    const chatDoc = await db.collection('chats').doc(email).collection('userChats').doc(req.params.chatId).get();
+    if (!chatDoc.exists) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const snap = await db.collection('chats').doc(email).collection('userChats').doc(req.params.chatId)
+      .collection('messages').orderBy('createdAt').get();
+    const messages = snap.docs.map(doc => doc.data());
+    res.json({ messages });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
 });
 
 // Set up WebSocket server
@@ -170,202 +164,120 @@ function processCodeBlocks(content) {
     return result;
 }
 
-// Handle WebSocket connections
-wss.on('connection', (ws) => {
-    console.log('Client connected');
+// Helper: get user from ws connection
+function getUser(ws) {
+    const info = connectionData.get(ws);
+    return info && info.currentUser ? info.currentUser : null;
+}
 
-    const systemPromptPath = path.join(__dirname, 'system.txt');
-    const systemContent = fs.readFileSync(systemPromptPath, 'utf8');
-    const initialHistory = [{ role: 'system', content: systemContent }];
-    
-    // Initialize connection data
+wss.on('connection', (ws) => {
+    // Track user and chat state for this connection
     connectionData.set(ws, {
-        history: initialHistory,
         currentUser: null,
         currentChatId: null
     });
 
     ws.on('message', async (message) => {
         try {
-            const userMessage = message.toString('utf8');
-            console.log('Received user message:', userMessage);
-
             let parsedMessage = null;
             try {
-                parsedMessage = JSON.parse(userMessage);
-            } catch (e) {
-                // Not JSON, treat as regular message
-            }
+                parsedMessage = JSON.parse(message);
+            } catch (e) {}
 
-            let connectionInfo = connectionData.get(ws);
-            if (!connectionInfo) {
-                console.error('Connection data not found');
+            let info = connectionData.get(ws);
+            // AUTH: Require auth before anything else
+            if (parsedMessage && parsedMessage.type === 'auth' && parsedMessage.token) {
+                try {
+                    const decoded = await admin.auth().verifyIdToken(parsedMessage.token);
+                    info.currentUser = decoded;
+                    connectionData.set(ws, info);
+                    ws.send(JSON.stringify({ role: 'auth_success', user: decoded }));
+                } catch (err) {
+                    ws.send(JSON.stringify({ role: 'error', content: 'Authentication failed' }));
+                }
                 return;
             }
-
-            // Handle different message types
-            if (parsedMessage) {
-                if (parsedMessage.type === 'profile_update') {
-                    const profileInfo = `User Profile:\nName: ${parsedMessage.data.name}\nOccupation: ${parsedMessage.data.occupation}`;
-                    const systemMessageIndex = connectionInfo.history.findIndex(msg => msg.role === 'system');
-                    if (systemMessageIndex !== -1) {
-                        connectionInfo.history[systemMessageIndex].content = `${connectionInfo.history[systemMessageIndex].content}\n\n${profileInfo}`;
-                    } else {
-                        connectionInfo.history.unshift({ role: 'system', content: profileInfo });
-                    }
-                    connectionData.set(ws, connectionInfo);
-                    return;
-                }
-                
-                if (parsedMessage.type === 'auth') {
-                    // Handle user authentication
-                    try {
-                        const decodedToken = await admin.auth().verifyIdToken(parsedMessage.token);
-                        connectionInfo.currentUser = decodedToken;
-                        connectionData.set(ws, connectionInfo);
-                        console.log(`User authenticated: ${decodedToken.uid}`);
-                        return;
-                    } catch (error) {
-                        console.error('Authentication error:', error);
-                        ws.send(JSON.stringify({ role: 'error', content: 'Authentication failed' }));
-                        return;
-                    }
-                }
-                
-                if (parsedMessage.type === 'chat_init') {
-                    // Initialize or load chat
-                    if (!connectionInfo.currentUser) {
-                        ws.send(JSON.stringify({ role: 'error', content: 'User not authenticated' }));
-                        return;
-                    }
-                    
-                    if (parsedMessage.chatId) {
-                        connectionInfo.currentChatId = parsedMessage.chatId;
-                        // Send confirmation that chat is loaded
-                        ws.send(JSON.stringify({ 
-                            role: 'chat_loaded', 
-                            chatId: parsedMessage.chatId 
-                        }));
-                    } else if (parsedMessage.firstMessage) {
-                        // Create new chat
-                        const chatId = await createChatSession(connectionInfo.currentUser.uid, parsedMessage.firstMessage);
-                        if (chatId) {
-                            connectionInfo.currentChatId = chatId;
-                            await updateChatTitle(connectionInfo.currentUser.uid, chatId, parsedMessage.firstMessage);
-                            await saveMessageToFirebase(connectionInfo.currentUser.uid, chatId, {
-                                role: 'user',
-                                content: parsedMessage.firstMessage
-                            });
-                            // Send the new chat ID back to frontend
-                            ws.send(JSON.stringify({ 
-                                role: 'chat_created', 
-                                chatId: chatId,
-                                title: parsedMessage.firstMessage
-                            }));
-                        }
-                    }
-                    connectionData.set(ws, connectionInfo);
-                    return;
-                }
-            }
-
-            // Regular message handling
-            if (!connectionInfo.currentUser) {
+            // Require auth for all other actions
+            const user = getUser(ws);
+            if (!user) {
                 ws.send(JSON.stringify({ role: 'error', content: 'User not authenticated' }));
                 return;
             }
+            const email = user.email;
 
-            const messageContent = parsedMessage ? parsedMessage.content : userMessage;
-            
-            // Save user message to Firebase
-            if (connectionInfo.currentChatId) {
-                await saveMessageToFirebase(connectionInfo.currentUser.uid, connectionInfo.currentChatId, {
-                    role: 'user',
-                    content: messageContent
-                });
-            }
-
-            // Add to conversation history
-            connectionInfo.history.push({ role: 'user', content: messageContent });
-            connectionData.set(ws, connectionInfo);
-
-            const stream = await cerebras.chat.completions.create({
-                messages: connectionInfo.history,
-                model: 'llama-3.3-70b',
-                stream: true,
-                max_completion_tokens: 8000,
-                temperature: 0.7,
-                top_p: 1
-            });
-
-            let fullResponse = '';
-            let promptDetected = false;
-            let accumulatedContent = '';
-            let lastSentContent = '';
-            let isFirstChunk = true;
-
-            for await (const chunk of stream) {
-                const content = chunk.choices[0]?.delta?.content || '';
-                if (content) {
-                    let visibleContent = content;
-                    
-                    accumulatedContent += visibleContent;
-                    
-                    if (visibleContent && accumulatedContent !== lastSentContent) {
-                        if (isFirstChunk) {
-                            ws.send(JSON.stringify({ role: 'ai_start' }));
-                            isFirstChunk = false;
-                        }
-                        ws.send(JSON.stringify({ role: 'ai', content: accumulatedContent }));
-                        lastSentContent = accumulatedContent;
-                    }
-                    
-                    fullResponse += content;
-                }
-            }
-
-            ws.send(JSON.stringify({ role: 'ai_complete', promptDetected: false }));
-
-            if (fullResponse.length > 0) {
-                // Save AI message to Firebase
-                if (connectionInfo.currentChatId) {
-                    console.log('Backend saving AI message to Firebase:', {
-                        uid: connectionInfo.currentUser.uid,
-                        chatId: connectionInfo.currentChatId,
-                        contentLength: fullResponse.length
+            // Handle chat message
+            if (parsedMessage && parsedMessage.type === 'message' && parsedMessage.content) {
+                ws.send(JSON.stringify({ role: 'ai_start' }));
+                let chatId = parsedMessage.chatId || info.currentChatId;
+                // If no chatId, create a new chat
+                if (!chatId) {
+                    const chatRef = await db.collection('chats').doc(email).collection('userChats').add({
+                        title: parsedMessage.content.slice(0, 40),
+                        createdAt: FieldValue.serverTimestamp(),
+                        updatedAt: FieldValue.serverTimestamp()
                     });
-                    
-                    const saveResult = await saveMessageToFirebase(connectionInfo.currentUser.uid, connectionInfo.currentChatId, {
-                        role: 'assistant',
-                        content: fullResponse
-                    });
-                    
-                    if (saveResult) {
-                        console.log('Backend successfully saved AI message to Firebase');
-                    } else {
-                        console.error('Backend failed to save AI message to Firebase');
-                    }
+                    chatId = chatRef.id;
+                    info.currentChatId = chatId;
+                    connectionData.set(ws, info);
                 } else {
-                    console.warn('Backend cannot save AI message - no chat ID');
+                    // Update chat updatedAt
+                    await db.collection('chats').doc(email).collection('userChats').doc(chatId).update({
+                        updatedAt: FieldValue.serverTimestamp()
+                    });
+                    info.currentChatId = chatId;
+                    connectionData.set(ws, info);
                 }
-                
-                // Add to conversation history
-                connectionInfo.history.push({ role: 'assistant', content: fullResponse });
-                connectionData.set(ws, connectionInfo);
+                // Save user message
+                await db.collection('chats').doc(email).collection('userChats').doc(chatId).collection('messages').add({
+                    role: 'user',
+                    content: parsedMessage.content,
+                    createdAt: FieldValue.serverTimestamp()
+                });
+                // Load full chat history
+                const msgSnap = await db.collection('chats').doc(email).collection('userChats').doc(chatId).collection('messages').orderBy('createdAt').get();
+                const history = msgSnap.docs.map(doc => ({
+                    role: doc.data().role,
+                    content: doc.data().content
+                }));
+                // Send to Cerebras
+                try {
+                    const stream = await cerebras.chat.completions.create({
+                        messages: history,
+                        model: 'llama-3.3-70b',
+                        stream: true,
+                        max_completion_tokens: 8000,
+                        temperature: 0.7,
+                        top_p: 1
+                    });
+                    let accumulatedContent = '';
+                    for await (const chunk of stream) {
+                        const content = chunk.choices[0]?.delta?.content || '';
+                        if (content) {
+                            accumulatedContent += content;
+                            ws.send(JSON.stringify({ role: 'ai', content: accumulatedContent }));
+                        }
+                    }
+                    // Save AI response
+                    await db.collection('chats').doc(email).collection('userChats').doc(chatId).collection('messages').add({
+                        role: 'assistant',
+                        content: accumulatedContent,
+                        createdAt: FieldValue.serverTimestamp()
+                    });
+                } catch (err) {
+                    ws.send(JSON.stringify({ role: 'ai', content: 'Sorry, I encountered an error.' }));
+                }
+                ws.send(JSON.stringify({ role: 'ai_complete', promptDetected: false }));
+                return;
             }
         } catch (error) {
-            console.error('Error or file:', error);
             ws.send(JSON.stringify({ role: 'ai', content: 'Sorry, I encountered an error' }));
         }
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
         connectionData.delete(ws);
     });
-
     ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
         connectionData.delete(ws);
     });
 });
