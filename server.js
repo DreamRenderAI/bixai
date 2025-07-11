@@ -17,21 +17,9 @@ const cerebras = new Cerebras({
 });
 
 // Initialize Firebase Admin SDK
-const firebase = {
-  "type": "service_account",
-  "project_id": "bixxproject",
-  "private_key_id": "54a5d1a7e3a98bb582384595e57699219a5d9aa3",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCzf+SQKiZgndjH\ngzVNr8A+98jSBxwPQz+SopNBUB2l5X/jEZt3TZUaLjHRH/i0ldh0PU47vrLxPI2V\nK+Y09cMRdqPE73jmMz0BYt3MUZxBPemB+pB4DZ1IGBxWoPShsFju57tvidMTWEyd\n0fHh20DQvOW+pq7NCfKI9b13o1Ly/E5EiHmkTPkKSUe8Hnv+nRI0EEVa3P8847GS\nYVZVpNtJF8e0JziIDlG3SA7Pdm0UektUn6SzBceMLFya1b3/Mp9h1pHY8u7M8u4h\nabQpYnESLRPfhG4nm9D6piimGkum+RTTj3950y5zIp/uY6W+tKbbOUosI/MeMa5x\nFb+MEmaLAgMBAAECggEAA1ANblGw0qCnIwt7XNss/5yAEsw5ythRYInqkM6DNZAW\nO6EUDvAaG9kVZ0ghRWfsjjyhaH3c/JHDBSlBvuF4P6bCX/yRbSIt8owaDs7ExPl5\nCUKQDv8lU3LKdxjSWvePtJ0HOwg+ooFDLLh2r9XljNSnosydtkAEP13VqNMVUVGp\n0IlJFW2TI9xWhwjESGYQY1w8fy167GWr44MpEDJOLZwT+44pRwb6CLxcCLnx3OXP\ndPJEOy1Ab4/qlZiJKdGqGvYYGWqHXO7RoIjjSja5zMiprou9fxaNWP7KYdW+VCyt\nyBB28j18avZX/Az/74AbIaOkDesPMXuPIkALP8LfzQKBgQDXIutV7rQThnv1QnvC\nKlfHhdG2yMYlXtlBlg8pk4MX9LTN2zhMg1V2U7mXBcd5SIQtxoWIkulGFT7J02xQ\njT5G52c6agroeySksJuWUs41+9XqTl8wOjnYj73Rxlmvp514yoXuJ2eIiT1zqYZy\nTMnLAaisUslR/DNcUjNPqUzyTQKBgQDVmB73UmbuT/NWoSdDKPdXSlDKK6bc20Tm\neZypj5LQk4Mg3rkyP7iGyWLqRscP+wTAKOHgjkhmn5j8LpHMnbK/bFFF+COnMAIG\nRTNTeM+0J0fuJx8YSd3o2cl2mJvaIuorl/XGgrFbGoVouDiIvjYTQJWnyNIWK60g\nGp0ei2+4NwKBgBM3fUn5voAX/S6VN7TKT3j1DRyEpp5j8IgZPVV7ZbRYGWZh9I9x\nE8s0A1noHD9LKPNlzju607d84lTo273+P9fZh7ECE+NcTJOhauRslRrhWeRKB9qo\n+M3NWSlJzG0STdCiVoBFaMwbZi/Urru6/DNz/HsYEf+OxY+zj/3Ho6XpAoGBAKwN\noIwK5Xz8DADxSUYxHqRC6bcg2IW5XtPkjEyNqW64FH2Ky1VtvL9eQ36ByuHViusb\nQ2/2TN3Vm48wGCPht9W4c/NPwbBv3IGehoyrmWv95FQzUTnoboedv0n3/jsFuumo\nu8LPDfxb7bEADBIiXj693I9OFeTkA84DgiLToQebAoGBAKibqE/V9o9Mt3wodpwY\njYC3/w+Q1NN5qKB7cTR6dg7biCHyfEa+EDv4umEgAtPZLdkOVWuEYYE2owPYBt8b\nzunJN0MroFoFMXxN0+ZmAaNSM+rYQdZWgKOyTEjrvHcBs+9OUcWuLaUPTqatD5RF\nShBFEs465z60/AMEd6Fq/1kw\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-fbsvc@bixxproject.iam.gserviceaccount.com",
-  "client_id": "115601538713502378971",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bixxproject.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-};
+const serviceAccount = require('./bixxproject-firebase-adminsdk-fbsvc-fa861b7e7a.json');
 admin.initializeApp({
-    credential: admin.credential.cert(firebase),
+    credential: admin.credential.cert(serviceAccount),
     projectId: "bixxproject"
 });
 
