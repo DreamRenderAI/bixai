@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const Cerebras = require('@cerebras/cerebras_cloud_sdk');
 const https = require('https');
+const axios = require('axios');
+const admin = require('firebase-admin');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,26 +16,87 @@ const cerebras = new Cerebras({
     apiKey: process.env.CEREBRAS_API_KEY
 });
 
-const firebaseConfig = {
+// Initialize Firebase Admin SDK
+const serviceAccount = require('./Fire.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: "bixxproject"
+});
 
-    apiKey: "AIzaSyBqPrOTa6ntMKuG4TyC3BOxAl9juegddEs",
-  
-    authDomain: "bixx-b9a19.firebaseapp.com",
-  
-    projectId: "bixx-b9a19",
-  
-    storageBucket: "bixx-b9a19.firebasestorage.app",
-  
-    messagingSenderId: "144965345442",
-  
-    appId: "1:144965345442:web:6ee6e146210491448ef7fb",
-  
-    measurementId: "G-7YJXNH8JJE"
-  
-  };
-  
+const db = admin.firestore();
+
+// Firebase helper functions
+async function saveMessageToFirebase(uid, chatId, message) {
+    try {
+        await db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').add({
+            ...message,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+        console.log(`Message saved to Firebase for user ${uid}, chat ${chatId}`);
+        return true;
+    } catch (error) {
+        console.error('Error saving message to Firebase:', error);
+        return false;
+    }
+}
+
+async function createChatSession(uid, title = "New Chat") {
+    try {
+        const chatRef = await db.collection('users').doc(uid).collection('chats').add({
+            title,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        console.log(`Chat session created for user ${uid}: ${chatRef.id}`);
+        return chatRef.id;
+    } catch (error) {
+        console.error('Error creating chat session:', error);
+        return null;
+    }
+}
+
+async function updateChatTitle(uid, chatId, title) {
+    try {
+        await db.collection('users').doc(uid).collection('chats').doc(chatId).update({
+            title,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        console.log(`Chat title updated for user ${uid}, chat ${chatId}: ${title}`);
+        return true;
+    } catch (error) {
+        console.error('Error updating chat title:', error);
+        return false;
+    }
+}
+
 // Serve static files from the 'public' folder
 app.use(express.static('public'));
+
+// Add Wikipedia extract endpoint
+app.get('/wiki/:topic', async (req, res) => {
+    try {
+        const topic = req.params.topic;
+        const url = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&titles=${encodeURIComponent(topic)}&format=json`;
+        const response = await axios.get(url);
+        const pages = response.data.query.pages;
+        let extract = '';
+        for (const pageId in pages) {
+            if (pages[pageId].extract) {
+                extract = pages[pageId].extract;
+                break;
+            }
+        }
+        if (!extract) {
+            return res.status(404).json({ error: 'No extract found for this topic.' });
+        }
+        // Limit to 1500 words
+        const words = extract.split(/\s+/).slice(0, 1500);
+        const limitedExtract = words.join(' ');
+        res.json({ extract: limitedExtract });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch Wikipedia extract.' });
+    }
+});
 
 // Set up WebSocket server
 const server = app.listen(port, () => {
@@ -41,35 +104,8 @@ const server = app.listen(port, () => {
 });
 const wss = new WebSocket.Server({ server });
 
-// Map to store conversation history for each WebSocket connection
-const conversationHistories = new Map();
-
-// Function to convert image URL to base64
-async function getBase64FromUrl(url) {
-    return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-            if (response.statusCode !== 200) {
-                reject(new Error(`Failed to fetch image: ${response.statusCode}`));
-                return;
-            }
-
-            const chunks = [];
-            response.on('data', (chunk) => chunks.push(chunk));
-            response.on('end', () => {
-                const buffer = Buffer.concat(chunks);
-                const base64 = buffer.toString('base64');
-                const mimeType = response.headers['content-type'];
-                const base64Data = `data:${mimeType};base64,${base64}`;
-                
-                // Log the base64 data in the console
-                console.log('Image converted to base64:');
-                console.log(base64Data);
-                
-                resolve(base64Data);
-            });
-        }).on('error', reject);
-    });
-}
+// Map to store conversation history and user data for each WebSocket connection
+const connectionData = new Map();
 
 // Function to process code blocks in the content
 function processCodeBlocks(content) {
@@ -128,51 +164,123 @@ wss.on('connection', (ws) => {
     const systemPromptPath = path.join(__dirname, 'system.txt');
     const systemContent = fs.readFileSync(systemPromptPath, 'utf8');
     const initialHistory = [{ role: 'system', content: systemContent }];
-    conversationHistories.set(ws, initialHistory);
+    
+    // Initialize connection data
+    connectionData.set(ws, {
+        history: initialHistory,
+        currentUser: null,
+        currentChatId: null
+    });
 
     ws.on('message', async (message) => {
         try {
             const userMessage = message.toString('utf8');
             console.log('Received user message:', userMessage);
 
-            // Check if this is an image generation request
-            const isImageRequest = userMessage.toLowerCase().includes('generate') && 
-                                 (userMessage.toLowerCase().includes('image') || 
-                                  userMessage.toLowerCase().includes('picture') || 
-                                  userMessage.toLowerCase().includes('photo'));
-
+            let parsedMessage = null;
             try {
-                const parsedMessage = JSON.parse(userMessage);
-                if (parsedMessage.type === 'profile_update') {
-                    const history = conversationHistories.get(ws);
-                    if (history) {
-                        const profileInfo = `User Profile:\nName: ${parsedMessage.data.name}\nOccupation: ${parsedMessage.data.occupation}`;
-                        const systemMessageIndex = history.findIndex(msg => msg.role === 'system');
-                        if (systemMessageIndex !== -1) {
-                            history[systemMessageIndex].content = `${history[systemMessageIndex].content}\n\n${profileInfo}`;
-                        } else {
-                            history.unshift({ role: 'system', content: profileInfo });
-                        }
-                        conversationHistories.set(ws, history);
-                    }
-                    return;
-                }
+                parsedMessage = JSON.parse(userMessage);
             } catch (e) {
-                console.log('Message is not JSON, treating as regular message');
+                // Not JSON, treat as regular message
             }
 
-            const history = conversationHistories.get(ws);
-            if (!history) {
-                console.error('History not found for connection');
+            let connectionInfo = connectionData.get(ws);
+            if (!connectionInfo) {
+                console.error('Connection data not found');
                 return;
             }
-            history.push({ role: 'user', content: userMessage });
+
+            // Handle different message types
+            if (parsedMessage) {
+                if (parsedMessage.type === 'profile_update') {
+                    const profileInfo = `User Profile:\nName: ${parsedMessage.data.name}\nOccupation: ${parsedMessage.data.occupation}`;
+                    const systemMessageIndex = connectionInfo.history.findIndex(msg => msg.role === 'system');
+                    if (systemMessageIndex !== -1) {
+                        connectionInfo.history[systemMessageIndex].content = `${connectionInfo.history[systemMessageIndex].content}\n\n${profileInfo}`;
+                    } else {
+                        connectionInfo.history.unshift({ role: 'system', content: profileInfo });
+                    }
+                    connectionData.set(ws, connectionInfo);
+                    return;
+                }
+                
+                if (parsedMessage.type === 'auth') {
+                    // Handle user authentication
+                    try {
+                        const decodedToken = await admin.auth().verifyIdToken(parsedMessage.token);
+                        connectionInfo.currentUser = decodedToken;
+                        connectionData.set(ws, connectionInfo);
+                        console.log(`User authenticated: ${decodedToken.uid}`);
+                        return;
+                    } catch (error) {
+                        console.error('Authentication error:', error);
+                        ws.send(JSON.stringify({ role: 'error', content: 'Authentication failed' }));
+                        return;
+                    }
+                }
+                
+                if (parsedMessage.type === 'chat_init') {
+                    // Initialize or load chat
+                    if (!connectionInfo.currentUser) {
+                        ws.send(JSON.stringify({ role: 'error', content: 'User not authenticated' }));
+                        return;
+                    }
+                    
+                    if (parsedMessage.chatId) {
+                        connectionInfo.currentChatId = parsedMessage.chatId;
+                        // Send confirmation that chat is loaded
+                        ws.send(JSON.stringify({ 
+                            role: 'chat_loaded', 
+                            chatId: parsedMessage.chatId 
+                        }));
+                    } else if (parsedMessage.firstMessage) {
+                        // Create new chat
+                        const chatId = await createChatSession(connectionInfo.currentUser.uid, parsedMessage.firstMessage);
+                        if (chatId) {
+                            connectionInfo.currentChatId = chatId;
+                            await updateChatTitle(connectionInfo.currentUser.uid, chatId, parsedMessage.firstMessage);
+                            await saveMessageToFirebase(connectionInfo.currentUser.uid, chatId, {
+                                role: 'user',
+                                content: parsedMessage.firstMessage
+                            });
+                            // Send the new chat ID back to frontend
+                            ws.send(JSON.stringify({ 
+                                role: 'chat_created', 
+                                chatId: chatId,
+                                title: parsedMessage.firstMessage
+                            }));
+                        }
+                    }
+                    connectionData.set(ws, connectionInfo);
+                    return;
+                }
+            }
+
+            // Regular message handling
+            if (!connectionInfo.currentUser) {
+                ws.send(JSON.stringify({ role: 'error', content: 'User not authenticated' }));
+                return;
+            }
+
+            const messageContent = parsedMessage ? parsedMessage.content : userMessage;
+            
+            // Save user message to Firebase
+            if (connectionInfo.currentChatId) {
+                await saveMessageToFirebase(connectionInfo.currentUser.uid, connectionInfo.currentChatId, {
+                    role: 'user',
+                    content: messageContent
+                });
+            }
+
+            // Add to conversation history
+            connectionInfo.history.push({ role: 'user', content: messageContent });
+            connectionData.set(ws, connectionInfo);
 
             const stream = await cerebras.chat.completions.create({
-                messages: history,
+                messages: connectionInfo.history,
                 model: 'llama-3.3-70b',
                 stream: true,
-                max_completion_tokens: 2048,
+                max_completion_tokens: 8000,
                 temperature: 0.7,
                 top_p: 1
             });
@@ -182,55 +290,55 @@ wss.on('connection', (ws) => {
             let accumulatedContent = '';
             let lastSentContent = '';
             let isFirstChunk = true;
-            let imagePrompt = null;
 
             for await (const chunk of stream) {
                 const content = chunk.choices[0]?.delta?.content || '';
                 if (content) {
                     let visibleContent = content;
-                    if (content.includes('_prompt:')) {
-                        visibleContent = content.split('_prompt:')[0].trim();
-                        const promptMatch = content.match(/_?prompt: ?([^_]+)_?/);
-                        if (promptMatch) {
-                            imagePrompt = promptMatch[1].trim();
-                        }
-                    }
                     
                     accumulatedContent += visibleContent;
                     
-                    const processedContent = processCodeBlocks(accumulatedContent);
-                    
-                    if (visibleContent && processedContent !== lastSentContent) {
+                    if (visibleContent && accumulatedContent !== lastSentContent) {
                         if (isFirstChunk) {
                             ws.send(JSON.stringify({ role: 'ai_start' }));
                             isFirstChunk = false;
                         }
-                        ws.send(JSON.stringify({ role: 'ai', content: processedContent }));
-                        lastSentContent = processedContent;
+                        ws.send(JSON.stringify({ role: 'ai', content: accumulatedContent }));
+                        lastSentContent = accumulatedContent;
                     }
                     
                     fullResponse += content;
                 }
             }
 
-            ws.send(JSON.stringify({ role: 'ai_complete', promptDetected: !!imagePrompt }));
+            ws.send(JSON.stringify({ role: 'ai_complete', promptDetected: false }));
 
             if (fullResponse.length > 0) {
-                history.push({ role: 'assistant', content: fullResponse });
-                conversationHistories.set(ws, history);
-            }
-
-            // If this is an image request but no prompt was detected, generate one
-            if (isImageRequest && !imagePrompt) {
-                imagePrompt = userMessage.replace(/generate\s+(?:an\s+)?(?:image|picture|photo)\s+of\s+/i, '').trim();
-            }
-
-            // Always generate an image if imagePrompt is set (from _prompt: ..._ in AI response or user message)
-            if (imagePrompt) {
-                console.log('Generating images for prompt:', imagePrompt);
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true&seed=${Math.floor(Math.random() * 1000000000) + 1}&safe=true`;
-                const base64Url = Buffer.from(imageUrl).toString('base64');
-                ws.send(JSON.stringify({ role: 'image', content: base64Url }));
+                // Save AI message to Firebase
+                if (connectionInfo.currentChatId) {
+                    console.log('Backend saving AI message to Firebase:', {
+                        uid: connectionInfo.currentUser.uid,
+                        chatId: connectionInfo.currentChatId,
+                        contentLength: fullResponse.length
+                    });
+                    
+                    const saveResult = await saveMessageToFirebase(connectionInfo.currentUser.uid, connectionInfo.currentChatId, {
+                        role: 'assistant',
+                        content: fullResponse
+                    });
+                    
+                    if (saveResult) {
+                        console.log('Backend successfully saved AI message to Firebase');
+                    } else {
+                        console.error('Backend failed to save AI message to Firebase');
+                    }
+                } else {
+                    console.warn('Backend cannot save AI message - no chat ID');
+                }
+                
+                // Add to conversation history
+                connectionInfo.history.push({ role: 'assistant', content: fullResponse });
+                connectionData.set(ws, connectionInfo);
             }
         } catch (error) {
             console.error('Error or file:', error);
@@ -240,11 +348,11 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log('Client disconnected');
-        conversationHistories.delete(ws);
+        connectionData.delete(ws);
     });
 
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
-        conversationHistories.delete(ws);
+        connectionData.delete(ws);
     });
 });
