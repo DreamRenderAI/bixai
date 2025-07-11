@@ -721,7 +721,6 @@
         let isWaitingForResponse = false;
         let wsAuthed = false;
 
-        // MongoDB authentication functions
         async function handleSignIn() {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
@@ -870,7 +869,6 @@
             document.getElementById('authErrorMessage').textContent = '';
         }
 
-        // Fetch and render chat list from MongoDB backend
         async function fetchAndRenderChatList() {
             if (!currentUser) {
                 console.warn('fetchAndRenderChatList called without currentUser');
