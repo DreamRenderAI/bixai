@@ -344,7 +344,7 @@
         
 
         .profile-modal.active,
-        .firebase-auth-modal.active {
+        .auth-modal.active {
             display: flex;
         }
         
@@ -531,7 +531,7 @@
             border-radius: 0;
             font-size: 1em;
         }
-        body, .user-message, .ai-message, .input-text, .input-container, .message-container, .profile-modal, .firebase-auth-modal, .dropdown-menu, .title, .example-buttons, .error-message, .loading-icon, .auth-modal-content, .think-button, .circle-button, .chatList, .copy-button {
+        body, .user-message, .ai-message, .input-text, .input-container, .message-container, .profile-modal, .auth-modal, .dropdown-menu, .title, .example-buttons, .error-message, .loading-icon, .auth-modal-content, .think-button, .circle-button, .chatList, .copy-button {
             font-family: 'Merriweather', serif !important;
         }
 
@@ -608,6 +608,7 @@
                 <div class="px-4 py-2.5 text-white text-sm text-left cursor-default transition-colors duration-300 light-theme:text-gray-800">Free User</div>
                 <button class="px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover" onclick="newChat()">New Chat</button>
                 <button class="px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover" id="theme-button" onclick="toggleTheme()">Switch to Light Theme</button>
+                <button class="px-4 py-2.5 text-white text-sm bg-transparent border-none text-left w-full cursor-pointer font-inter font-normal transition-colors duration-300 light-theme:text-gray-800 hover:bg-dark-hover light-theme:hover:bg-light-hover" onclick="logout()">Logout</button>
             </div>
         </div>
     </div>
@@ -680,55 +681,36 @@
     </div>
 
 
-    <div class="hidden fixed inset-0 bg-black/60 z-50 justify-center items-center" id="firebaseAuthModal">
-        <div class="bg-dark-card rounded-2xl p-8 shadow-2xl w-full max-w-96 relative flex flex-col items-stretch light-theme:bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-white text-2xl font-semibold m-0 light-theme:text-gray-800">Sign In / Sign Up</h3>
-                <button class="bg-transparent border-none text-white text-3xl cursor-pointer light-theme:text-gray-800" onclick="closeAuthModal()">&times;</button>
+    <div class="hidden fixed inset-0 bg-black/60 z-50 flex justify-center items-center" id="authModal">
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-10 shadow-2xl w-full max-w-md mx-4 relative flex flex-col items-stretch border border-slate-700/50 backdrop-blur-sm">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-white text-3xl font-bold m-0 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Welcome to Bixx AI</h3>
+                <button class="bg-transparent border-none text-slate-400 text-3xl cursor-pointer hover:text-white transition-colors" onclick="closeAuthModal()">&times;</button>
             </div>
-            <form id="authForm">
-                <div class="mb-4">
-                    <label class="text-white text-sm mb-1.5 block light-theme:text-gray-800" for="authEmail">Email</label>
-                    <input type="email" id="authEmail" class="w-full p-2.5 rounded-md border border-gray-600 bg-dark-input text-white text-base light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800" placeholder="Enter your email" required>
+            <form id="authForm" class="space-y-6">
+                <div>
+                    <label class="text-slate-300 text-sm mb-2 block font-medium" for="authEmail">Email Address</label>
+                    <input type="email" id="authEmail" class="w-full p-4 rounded-xl border border-slate-600 bg-slate-800/50 text-white text-base placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Enter your email" required>
                 </div>
-                <div class="mb-4">
-                    <label class="text-white text-sm mb-1.5 block light-theme:text-gray-800" for="authPassword">Password</label>
-                    <input type="password" id="authPassword" class="w-full p-2.5 rounded-md border border-gray-600 bg-dark-input text-white text-base light-theme:bg-gray-100 light-theme:border-gray-300 light-theme:text-gray-800" placeholder="Enter your password" required>
+                <div>
+                    <label class="text-slate-300 text-sm mb-2 block font-medium" for="authPassword">Password</label>
+                    <input type="password" id="authPassword" class="w-full p-4 rounded-xl border border-slate-600 bg-slate-800/50 text-white text-base placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Enter your password" required>
                 </div>
-                <div class="flex gap-2.5">
-                  <button type="button" class="bg-blue-500 text-white border-none rounded-md py-3 text-base font-medium cursor-pointer w-full transition-colors duration-200 hover:bg-blue-600" onclick="handleSignIn()">Sign In</button>
-                  <button type="button" class="bg-green-600 text-white border-none rounded-md py-3 text-base font-medium cursor-pointer w-full transition-colors duration-200 hover:bg-green-700" onclick="handleSignUp()">Sign Up</button>
+                <div class="flex gap-3 pt-2">
+                  <button type="button" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none rounded-xl py-4 text-base font-semibold cursor-pointer w-full transition-all duration-200 hover:from-blue-600 hover:to-blue-700 transform hover:scale-[1.02] shadow-lg hover:shadow-xl" onclick="handleSignIn()">Sign In</button>
+                  <button type="button" class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-none rounded-xl py-4 text-base font-semibold cursor-pointer w-full transition-all duration-200 hover:from-emerald-600 hover:to-emerald-700 transform hover:scale-[1.02] shadow-lg hover:shadow-xl" onclick="handleSignUp()">Sign Up</button>
                 </div>
             </form>
-            <div class="text-center text-gray-400 my-4 text-sm">or</div>
-            <button class="bg-white text-dark-card border-none rounded-md py-3 text-base font-medium cursor-pointer flex items-center justify-center gap-2 shadow-md transition-colors duration-200 hover:bg-gray-100" onclick="handleGoogleAuth()">
-                <span class="inline-block w-5.5 h-5.5 align-middle mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="22" height="22">
-                    <g><path fill="#4285F4" d="M24 9.5c3.54 0 6.04 1.53 7.43 2.81l5.48-5.48C33.64 3.99 29.28 2 24 2 14.82 2 6.98 7.98 3.69 15.44l6.91 5.37C12.36 14.36 17.68 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.21-.43-4.73H24v9.01h12.42c-.54 2.9-2.18 5.36-4.66 7.01l7.19 5.6C43.98 37.36 46.1 31.45 46.1 24.55z"/><path fill="#FBBC05" d="M10.6 28.09c-1.04-3.09-1.04-6.41 0-9.5l-6.91-5.37C1.1 17.36 0 20.55 0 24s1.1 6.64 3.69 10.78l6.91-5.37z"/><path fill="#EA4335" d="M24 44c5.28 0 9.64-1.75 12.85-4.77l-7.19-5.6c-2.01 1.35-4.59 2.17-7.66 2.17-6.32 0-11.64-4.86-13.4-11.13l-6.91 5.37C6.98 40.02 14.82 46 24 46z"/><path fill="none" d="M0 0h48v48H0z"/></g>
-                  </svg>
-                </span>
-                Continue with Google
-            </button>
-            <div class="text-red-500 text-sm mt-2.5 min-h-4.5 text-center" id="authErrorMessage"></div>
+            <div class="text-center text-slate-400 my-6 text-sm">
+                <span class="bg-slate-800/50 px-4 py-2 rounded-full">✨ Experience AI-powered conversations</span>
+            </div>
+            <div class="text-red-400 text-sm mt-4 min-h-6 text-center font-medium" id="authErrorMessage"></div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyBqPrOTa6ntMKuG4TyC3BOxAl9juegddEs",
-            authDomain: "bixx-b9a19.firebaseapp.com",
-            projectId: "bixx-b9a19",
-            storageBucket: "bixx-b9a19.firebasestorage.app",
-            messagingSenderId: "144965345442",
-            appId: "1:144965345442:web:6ee6e146210491448ef7fb",
-            measurementId: "G-7YJXNH8JJE"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
+        // Simple authentication system (no Firebase)
         let currentUser = null;
         let currentChatId = null;
         let chatMessages = [];
@@ -739,19 +721,43 @@
         let isWaitingForResponse = false;
         let wsAuthed = false;
 
-        // Auth UI logic (email/password and Google)
+        // MongoDB authentication functions
         async function handleSignIn() {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
             const errorDiv = document.getElementById('authErrorMessage');
             errorDiv.textContent = '';
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter both email and password';
+                return;
+            }
+            
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
+                const response = await fetch('/api/auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Sign in failed';
+                    return;
+                }
+                
+                currentUser = { email: data.user.email };
                 closeAuthModal();
                 await afterAuth();
-            } catch (error) {
-                errorDiv.textContent = error.message;
+                wsAuthed = false;
+                disableInput();
+                await sendWebSocketAuth();
+            } catch (err) {
+                console.error('Sign in error:', err);
+                errorDiv.textContent = 'Network error. Please try again.';
             }
         }
 
@@ -760,29 +766,80 @@
             const password = document.getElementById('authPassword').value;
             const errorDiv = document.getElementById('authErrorMessage');
             errorDiv.textContent = '';
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter both email and password';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = 'Password must be at least 6 characters long';
+                return;
+            }
+            
             try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Sign up failed';
+                    return;
+                }
+                
+                currentUser = { email: data.user.email };
                 closeAuthModal();
                 await afterAuth();
-            } catch (error) {
-                errorDiv.textContent = error.message;
+                wsAuthed = false;
+                disableInput();
+                await sendWebSocketAuth();
+            } catch (err) {
+                console.error('Sign up error:', err);
+                errorDiv.textContent = 'Network error. Please try again.';
             }
         }
 
-        async function handleGoogleAuth() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                const result = await auth.signInWithPopup(provider);
-                currentUser = result.user;
+        // Check if user is logged in on page load
+        function checkAuthState() {
+            const savedUser = localStorage.getItem('bixxUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                afterAuth();
+                wsAuthed = false;
+                disableInput();
+                sendWebSocketAuth();
+            } else {
+                // Guest mode - allow chatting but don't save
+                currentUser = null;
                 closeAuthModal();
-                await afterAuth();
-            } catch (error) {
-                document.getElementById('authErrorMessage').textContent = error.message;
+                moveInputMiddle();
+                renderMessages();
+                chatListDiv.style.display = 'none';
+                showChatMenuBtn.style.display = 'none'; // Hide chat list for guests
+                wsAuthed = false;
+                // Guest auth will be sent when WebSocket connects
             }
+            updateSignUpButtonVisibility();
         }
 
-        // Hide/show sign up button based on auth state
+        // Save user to localStorage
+        function saveUser(user) {
+            localStorage.setItem('bixxUser', JSON.stringify(user));
+        }
+
+        // Clear user from localStorage
+        function clearUser() {
+            localStorage.removeItem('bixxUser');
+            currentUser = null;
+        }
+
+        // Update sign up button visibility
         function updateSignUpButtonVisibility() {
             const signUpBtn = document.getElementById('signUpBtn');
             if (!signUpBtn) return;
@@ -793,27 +850,34 @@
             }
         }
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                closeAuthModal();
-                await afterAuth();
-                wsAuthed = false;
-                disableInput();
-                await sendWebSocketAuth();
-            } else {
-                openAuthModal();
+        // On login/auth, fetch and render chat list
+        async function afterAuth() {
+            if (currentUser) {
+                saveUser(currentUser);
             }
-            updateSignUpButtonVisibility();
-        });
+            moveInputMiddle();
+            renderMessages();
+            chatListDiv.style.display = 'none';
+            showChatMenuBtn.style.display = 'flex';
+            await fetchAndRenderChatList();
+        }
 
-        // Fetch and render chat list from Firestore
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('authErrorMessage').textContent = '';
+        }
+
+        // Fetch and render chat list from MongoDB backend
         async function fetchAndRenderChatList() {
-            if (!currentUser) return;
-            const token = await currentUser.getIdToken();
-            const resp = await fetch('/api/chats', {
-                headers: { Authorization: 'Bearer ' + token }
-            });
+            if (!currentUser) {
+                console.warn('fetchAndRenderChatList called without currentUser');
+                return;
+            }
+            // No token needed, just email as query param
+            const resp = await fetch(`/api/chats?email=${encodeURIComponent(currentUser.email)}`);
             const data = await resp.json();
             renderChatList(data.chats || []);
         }
@@ -821,10 +885,8 @@
         // Fetch messages for a chat and render them
         async function loadChat(chatId) {
             if (!currentUser) return;
-            const token = await currentUser.getIdToken();
-            const resp = await fetch(`/api/chats/${chatId}/messages`, {
-                headers: { Authorization: 'Bearer ' + token }
-            });
+            // No token needed
+            const resp = await fetch(`/api/chats/${chatId}/messages`);
             const data = await resp.json();
             chatMessages = data.messages || [];
             currentChatId = chatId; // Set the current chatId when loading a chat
@@ -864,50 +926,17 @@
             chatListDiv.appendChild(chatsContainer);
         }
 
-        // On login/auth, fetch and render chat list
-        async function afterAuth() {
-            moveInputMiddle();
-            renderMessages();
-            chatListDiv.style.display = 'none';
-            showChatMenuBtn.style.display = 'flex';
-            await fetchAndRenderChatList();
-        }
-
-        function openAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.remove('hidden');
-        }
-        function closeAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.add('hidden');
-            document.getElementById('authErrorMessage').textContent = '';
+        // Logout function
+        function logout() {
+            clearUser();
+            location.reload(); // Refresh page to reset state
         }
 
         // Remove all chat saving and message saving logic from the frontend
         // Remove: createChatSession, saveMessage, getUserChats, getChatMessages, and any calls to these functions
         // Only keep UI and WebSocket communication for chat
 
-        async function sendMessage() {
-            if (isWaitingForResponse) return;
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            if (!message || !currentUser) return;
-            setChatSwitchingEnabled(false);
-            // Always append the user's message to the chat UI immediately
-            chatMessages.push({ role: 'user', content: message });
-            lastUserMessageWasHebrew = containsHebrew(message);
-            renderMessages();
-            input.value = '';
-            dropdownMenu.classList.add('hidden');
-            const exampleButtons = document.getElementById('exampleButtons');
-            if (exampleButtons) exampleButtons.classList.add('hidden');
-            setTimeout(scrollToBottom, 100);
-            // Always send as a stateless message
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'message',
-                    content: message
-                }));
-            }
-        }
+        // Original sendMessage function removed - replaced by overridden version below
 
         // Get the current host and protocol
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -1032,14 +1061,24 @@
 
         ws.onopen = () => {
             console.log('WebSocket connected');
+            // For guest users, enable input immediately when WebSocket connects
+            if (!currentUser) {
+                console.log('Enabling input for guest user');
+                enableInput();
+                // Send guest authentication
+                console.log('Sending guest auth to WebSocket');
+                ws.send(JSON.stringify({ type: 'auth', email: 'guest@example.com', isGuest: true }));
+            }
         };
 
         ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
             displayErrorMessage('WebSocket connection error. Please try again later.');
             setChatSwitchingEnabled(true);
         };
 
         ws.onclose = () => {
+            console.error('WebSocket closed');
             displayErrorMessage('Connection closed. Please refresh the page.');
             setChatSwitchingEnabled(true);
         };
@@ -1050,8 +1089,10 @@
             if (!data) return;
 
             if (data.role === 'auth_success') {
+                console.log('WebSocket auth success received');
                 wsAuthed = true;
                 enableInput();
+                await fetchAndRenderChatList(); // Fetch chats only after WebSocket auth
                 return;
             }
 
@@ -1124,13 +1165,15 @@
             return /[\u0590-\u05FF]/.test(text);
         }
 
-        const origSendMessage = sendMessage;
+        // Overridden sendMessage function that supports both signed-in and guest users
         sendMessage = async function() {
-            if (!wsAuthed) return;
+            // For signed-in users, require WebSocket auth. For guests, just require WebSocket to be open
+            if (currentUser && !wsAuthed) return;
+            if (!currentUser && ws.readyState !== WebSocket.OPEN) return;
             if (isWaitingForResponse) return;
             const input = document.getElementById('userInput');
             const message = input.value.trim();
-            if (!message || !currentUser) return;
+            if (!message) return; // Remove currentUser check for guests
             setChatSwitchingEnabled(false);
             // Always append the user's message to the chat UI immediately
             chatMessages.push({ role: 'user', content: message });
@@ -1581,6 +1624,7 @@
             moveInputMiddle();
             chatListDiv.style.display = 'none';
             showChatMenuBtn.style.display = 'flex';
+            checkAuthState(); // Call checkAuthState on page load
         });
 
 
@@ -1617,9 +1661,21 @@
 
         // After Firebase login, send auth message to WebSocket
         async function sendWebSocketAuth() {
-            if (ws && ws.readyState === WebSocket.OPEN && currentUser) {
-                const token = await currentUser.getIdToken();
-                ws.send(JSON.stringify({ type: 'auth', token }));
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                if (currentUser) {
+                    console.log('Sending WebSocket auth with email:', currentUser.email);
+                    // Send email instead of token
+                    ws.send(JSON.stringify({ type: 'auth', email: currentUser.email }));
+                } else {
+                    console.log('Sending guest auth to WebSocket');
+                    ws.send(JSON.stringify({ type: 'auth', email: 'guest@example.com', isGuest: true }));
+                }
+            } else {
+                console.log('Cannot send WebSocket auth:', {
+                    ws: !!ws,
+                    readyState: ws ? ws.readyState : 'no ws',
+                    currentUser: !!currentUser
+                });
             }
         }
     </script>
