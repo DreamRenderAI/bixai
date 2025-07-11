@@ -17,7 +17,7 @@ const cerebras = new Cerebras({
 });
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require('./Fire.json');
+const serviceAccount = require('./bixxproject-firebase-adminsdk-fbsvc-54a5d1a7e3.json');
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     projectId: "bixxproject"
