@@ -536,20 +536,7 @@
         }
 
 
-        .user-message:lang(he), .ai-message:lang(he),
-        .user-message:lang(ar), .ai-message:lang(ar),
-        .user-message:lang(fa), .ai-message:lang(fa),
-        .user-message:lang(ur), .ai-message:lang(ur),
-        .user-message:lang(hi), .ai-message:lang(hi),
-        .user-message:lang(th), .ai-message:lang(th),
-        .user-message:lang(ko), .ai-message:lang(ko),
-        .user-message:lang(ja), .ai-message:lang(ja),
-        .user-message:lang(zh), .ai-message:lang(zh) {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-        }
-
-
-        .user-message:not(:lang(en)), .ai-message:not(:lang(en)) {
+        .user-message:lang(he), .ai-message:lang(he) {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
         }
 
@@ -728,34 +715,198 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqPrOTa6ntMKuG4TyC3BOxAl9juegddEs",
+            authDomain: "bixx-b9a19.firebaseapp.com",
+            projectId: "bixx-b9a19",
+            storageBucket: "bixx-b9a19.firebasestorage.app",
+            messagingSenderId: "144965345442",
+            appId: "1:144965345442:web:6ee6e146210491448ef7fb",
+            measurementId: "G-7YJXNH8JJE"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let currentChatId = null;
+        let chatMessages = [];
+        let aiAccumulated = '';
+        let aiIsStreaming = false;
+        let aiStreamingDiv = null;
+        let pendingFirstMessage = null;
+        let isWaitingForResponse = false;
+        let wsAuthed = false;
+
+        // Auth UI logic (email/password and Google)
+        async function handleSignIn() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authErrorMessage');
+            errorDiv.textContent = '';
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                closeAuthModal();
+                await afterAuth();
+            } catch (error) {
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        async function handleSignUp() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authErrorMessage');
+            errorDiv.textContent = '';
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                closeAuthModal();
+                await afterAuth();
+            } catch (error) {
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        async function handleGoogleAuth() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                currentUser = result.user;
+                closeAuthModal();
+                await afterAuth();
+            } catch (error) {
+                document.getElementById('authErrorMessage').textContent = error.message;
+            }
+        }
+
+        // Hide/show sign up button based on auth state
+        function updateSignUpButtonVisibility() {
+            const signUpBtn = document.getElementById('signUpBtn');
+            if (!signUpBtn) return;
+            if (currentUser) {
+                signUpBtn.style.display = 'none';
+            } else {
+                signUpBtn.style.display = '';
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                closeAuthModal();
+                await afterAuth();
+                wsAuthed = false;
+                disableInput();
+                await sendWebSocketAuth();
+            } else {
+                openAuthModal();
+            }
+            updateSignUpButtonVisibility();
+        });
+
+        // Fetch and render chat list from Firestore
+        async function fetchAndRenderChatList() {
+            if (!currentUser) return;
+            const token = await currentUser.getIdToken();
+            const resp = await fetch('/api/chats', {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            const data = await resp.json();
+            renderChatList(data.chats || []);
+        }
+
+        // Fetch messages for a chat and render them
+        async function loadChat(chatId) {
+            if (!currentUser) return;
+            const token = await currentUser.getIdToken();
+            const resp = await fetch(`/api/chats/${chatId}/messages`, {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            const data = await resp.json();
+            chatMessages = data.messages || [];
+            currentChatId = chatId; // Set the current chatId when loading a chat
+            renderMessages();
+        }
+
+        // Update renderChatList to use loadChat
+        function renderChatList(chats) {
+            chatListDiv.innerHTML = '';
+            chatListDiv.appendChild(hideChatBtn);
+            const headerDiv = document.createElement('div');
+            headerDiv.style = 'font-weight:700;padding:18px 20px 10px 20px;font-size:18px;letter-spacing:0.5px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;';
+            headerDiv.textContent = 'Your Chats';
+            chatListDiv.appendChild(headerDiv);
+            const newBtn = document.createElement('button');
+            newBtn.innerHTML = `<i class='fas fa-plus-circle' style='font-size:17px;'></i> <span style='margin-left:7px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;'>New Chat</span>`;
+            newBtn.style = `display:block;width:90%;margin:12px auto;padding:12px 0;background:#4a9eff;color:#fff;border:none;border-radius:10px;text-align:center;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.08);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;`;
+            newBtn.onmouseover = () => newBtn.style.background = '#357abd';
+            newBtn.onmouseout = () => newBtn.style.background = '#4a9eff';
+            newBtn.onclick = () => newChat();
+            chatListDiv.appendChild(newBtn);
+            const chatsContainer = document.createElement('div');
+            chatsContainer.style = 'flex:1;overflow-y:auto;';
+            chats.forEach(chat => {
+                const btn = document.createElement('button');
+                btn.className = 'chat-button';
+                btn.setAttribute('data-title', chat.title || 'Untitled');
+                const displayTitle = chat.title ? chat.title.slice(0, 32) : 'Untitled';
+                btn.title = chat.title;
+                btn.style = `display:flex;align-items:center;width:90%;margin:8px auto;padding:12px 16px 12px 14px;background:#18191a;color:#fff;border:none;border-radius:10px;text-align:left;cursor:pointer;font-size:15px;gap:10px;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.06);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;`;
+                btn.onmouseover = () => btn.style.background = '#23272a';
+                btn.onmouseout = () => btn.style.background = '#18191a';
+                btn.innerHTML = `<i class='fas fa-comments' style='font-size:16px;opacity:0.7;'></i> <span style='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;'>${displayTitle}</span>`;
+                btn.onclick = () => loadChat(chat.id);
+                chatsContainer.appendChild(btn);
+            });
+            chatListDiv.appendChild(chatsContainer);
+        }
+
+        // On login/auth, fetch and render chat list
+        async function afterAuth() {
+            moveInputMiddle();
+            renderMessages();
+            chatListDiv.style.display = 'none';
+            showChatMenuBtn.style.display = 'flex';
+            await fetchAndRenderChatList();
+        }
+
+        function openAuthModal() {
+            document.getElementById('firebaseAuthModal').classList.remove('hidden');
+        }
+        function closeAuthModal() {
+            document.getElementById('firebaseAuthModal').classList.add('hidden');
+            document.getElementById('authErrorMessage').textContent = '';
+        }
+
+        // Remove all chat saving and message saving logic from the frontend
+        // Remove: createChatSession, saveMessage, getUserChats, getChatMessages, and any calls to these functions
+        // Only keep UI and WebSocket communication for chat
+
         async function sendMessage() {
             if (isWaitingForResponse) return;
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             if (!message || !currentUser) return;
             setChatSwitchingEnabled(false);
-            // If no chat, create one and set title to first message
-            if (!currentChatId) {
-                await startNewChat(message);
-                moveInputDown();
-            }
-            // Save user message
-            await saveMessage(currentUser.uid, currentChatId, {
-                role: 'user',
-                content: message
-            });
+            // Always append the user's message to the chat UI immediately
             chatMessages.push({ role: 'user', content: message });
             lastUserMessageWasHebrew = containsHebrew(message);
-            console.log('chatMessages after sending:', chatMessages);
             renderMessages();
             input.value = '';
             dropdownMenu.classList.add('hidden');
             const exampleButtons = document.getElementById('exampleButtons');
             if (exampleButtons) exampleButtons.classList.add('hidden');
             setTimeout(scrollToBottom, 100);
-            ws.send(message);
+            // Always send as a stateless message
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'message',
+                    content: message
+                }));
+            }
         }
 
         // Get the current host and protocol
@@ -770,18 +921,6 @@
         const themeButton = document.getElementById('theme-button');
         const userInput = document.getElementById('userInput');
         const sendButton = document.querySelector('button[onclick="sendMessage()"]');
-
-        let messageSent = false;
-        let isWaitingForResponse = false;
-        let currentChatId = null;
-        let currentUser = null;
-        let chatMessages = [];
-        let aiAccumulated = '';
-        let aiIsStreaming = false;
-        let aiStreamingDiv = null;
-        let pendingFirstMessage = null;
-
-
 
         function disableInput() {
             userInput.disabled = true;
@@ -910,6 +1049,12 @@
             const data = tryParseJSON(event.data);
             if (!data) return;
 
+            if (data.role === 'auth_success') {
+                wsAuthed = true;
+                enableInput();
+                return;
+            }
+
             if (data.role === 'ai_start') {
                 aiAccumulated = '';
                 aiIsStreaming = true;
@@ -932,67 +1077,10 @@
                 return;
             }
 
-            if (data.role === 'chat_created') {
-                currentChatId = data.chatId;
-                if (currentUser) {
-                    chatMessages = await getChatMessages(currentUser.uid, data.chatId);
-                    renderMessages();
-                    moveInputDown();
-                    const chats = await getUserChats(currentUser.uid);
-                    renderChatList(chats);
-                }
-                if (pendingFirstMessage) {
-                    ws.send(JSON.stringify({
-                        type: 'message',
-                        content: pendingFirstMessage
-                    }));
-                    pendingFirstMessage = null;
-                }
-                return;
-            }
-
-            if (data.role === 'chat_loaded') {
-                console.log('Chat loaded by backend:', data.chatId);
-                currentChatId = data.chatId;
-                // Load messages for this chat
-                if (currentUser) {
-                    chatMessages = await getChatMessages(currentUser.uid, data.chatId);
-                    renderMessages();
-                }
-                return;
-            }
-
             if (data.role === 'ai_complete' && aiIsStreaming) {
                 aiIsStreaming = false;
                 setChatSwitchingEnabled(true);
-                
-                if (currentUser && currentChatId && aiAccumulated) {
-                    try {
-                        console.log('Saving AI message to Firebase:', {
-                            uid: currentUser.uid,
-                            chatId: currentChatId,
-                            content: aiAccumulated.substring(0, 100) + '...'
-                        });
-                        
-                        await saveMessage(currentUser.uid, currentChatId, {
-                            role: 'assistant',
-                            content: aiAccumulated,
-                            rtl: lastUserMessageWasHebrew ? true : undefined
-                        });
-                        
-                        console.log('AI message saved successfully to Firebase');
-                        
-                        const aiMessage = { 
-                            role: 'assistant', 
-                            content: aiAccumulated, 
-                            rtl: lastUserMessageWasHebrew ? true : undefined 
-                        };
-                        chatMessages.push(aiMessage);
-                        await appendMessage(aiMessage);
-                        console.log('chatMessages after AI:', chatMessages);
-                    } catch (error) {
-                        console.error('Failed to save AI message to Firebase:', error);
-                        // Still add the message to the UI even if Firebase save fails
+                if (aiAccumulated) {
                         const aiMessage = { 
                             role: 'assistant', 
                             content: aiAccumulated, 
@@ -1001,14 +1089,6 @@
                         chatMessages.push(aiMessage);
                         await appendMessage(aiMessage);
                     }
-                } else {
-                    console.warn('Cannot save AI message - missing user or chat ID:', {
-                        hasUser: !!currentUser,
-                        hasChatId: !!currentChatId,
-                        hasContent: !!aiAccumulated
-                    });
-                }
-                
                 aiAccumulated = '';
                 if (aiStreamingDiv && aiStreamingDiv.parentNode) {
                     aiStreamingDiv.parentNode.removeChild(aiStreamingDiv);
@@ -1018,8 +1098,6 @@
                 lastUserMessageWasHebrew = false;
                 return;
             }
-
-            if (typeof origOnMessage === 'function') origOnMessage.call(ws, event);
         };
 
         function scrollToBottom(smooth = false) {
@@ -1048,38 +1126,13 @@
 
         const origSendMessage = sendMessage;
         sendMessage = async function() {
+            if (!wsAuthed) return;
             if (isWaitingForResponse) return;
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             if (!message || !currentUser) return;
             setChatSwitchingEnabled(false);
-            if (!currentChatId) {
-                moveInputDown();
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({
-                        type: 'chat_init',
-                        firstMessage: message
-                    }));
-                }
-                pendingFirstMessage = message;
-                input.value = '';
-                dropdownMenu.classList.add('hidden');
-                const exampleButtons = document.getElementById('exampleButtons');
-                if (exampleButtons) exampleButtons.classList.add('hidden');
-                setTimeout(scrollToBottom, 100);
-                return;
-            } else {
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({
-                        type: 'chat_init',
-                        chatId: currentChatId
-                    }));
-                }
-            }
-            await saveMessage(currentUser.uid, currentChatId, {
-                role: 'user',
-                content: message
-            });
+            // Always append the user's message to the chat UI immediately
             chatMessages.push({ role: 'user', content: message });
             lastUserMessageWasHebrew = containsHebrew(message);
             renderMessages();
@@ -1088,10 +1141,15 @@
             const exampleButtons = document.getElementById('exampleButtons');
             if (exampleButtons) exampleButtons.classList.add('hidden');
             setTimeout(scrollToBottom, 100);
-            ws.send(JSON.stringify({
-                type: 'message',
-                content: message
-            }));
+            // Always send as a stateless message
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const msg = {
+                    type: 'message',
+                    content: message
+                };
+                if (currentChatId) msg.chatId = currentChatId;
+                ws.send(JSON.stringify(msg));
+            }
         };
 
         function useExamplePrompt(prompt) {
@@ -1108,7 +1166,7 @@
             messageContainer.innerHTML = '';
             messageSent = false;
             chatMessages = [];
-            currentChatId = null;
+            currentChatId = null; // Reset currentChatId when starting a new chat
             dropdownMenu.classList.add('hidden');
             moveInputMiddle();
             scrollToBottom();
@@ -1190,151 +1248,6 @@
         });
 
 
-        const firebaseConfig = {
-
-apiKey: "AIzaSyBqztQE_BE7_rqbqpnlR_Nbwf_ZjkdC4zk",
-
-authDomain: "bixxproject.firebaseapp.com",
-
-projectId: "bixxproject",
-
-storageBucket: "bixxproject.firebasestorage.app",
-
-messagingSenderId: "951126562805",
-
-appId: "1:951126562805:web:5a35b47f71e7b4217532bc",
-
-measurementId: "G-6YHFL3FN51"
-
-};
-
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-
-        async function createChatSession(uid, title = "New Chat") {
-            const chatRef = await db.collection('users').doc(uid).collection('chats').add({
-                title,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return chatRef.id;
-        }
-
-        async function saveMessage(uid, chatId, message) {
-            try {
-                console.log('Attempting to save message:', {
-                    uid,
-                    chatId,
-                    role: message.role,
-                    contentLength: message.content?.length || 0
-                });
-                
-                const result = await db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').add({
-                    ...message,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                console.log('Message saved successfully with ID:', result.id);
-                return result;
-            } catch (error) {
-                console.error('Error saving message to Firebase:', error);
-                throw error;
-            }
-        }
-
-        async function getUserChats(uid) {
-            const snapshot = await db.collection('users').doc(uid).collection('chats').orderBy('updatedAt', 'desc').get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        }
-
-        async function getChatMessages(uid, chatId) {
-            const snapshot = await db.collection('users').doc(uid).collection('chats').doc(chatId).collection('messages').orderBy('timestamp').get();
-            return snapshot.docs.map(doc => doc.data());
-        }
-
-
-        function openAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.remove('hidden');
-        }
-        function closeAuthModal() {
-            document.getElementById('firebaseAuthModal').classList.add('hidden');
-            document.getElementById('authErrorMessage').textContent = '';
-        }
-
-
-        async function handleSignIn() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const errorDiv = document.getElementById('authErrorMessage');
-            errorDiv.textContent = '';
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                closeAuthModal();
-            } catch (signInErr) {
-                errorDiv.textContent = signInErr.message;
-            }
-        }
-
-        async function handleSignUp() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const errorDiv = document.getElementById('authErrorMessage');
-            errorDiv.textContent = '';
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-                closeAuthModal();
-            } catch (signUpErr) {
-                errorDiv.textContent = signUpErr.message;
-            }
-        }
-
-
-        async function handleGoogleAuth() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-                closeAuthModal();
-            } catch (error) {
-                document.getElementById('authErrorMessage').textContent = error.message;
-            }
-        }
-
-
-        auth.onAuthStateChanged(async user => {
-            if (!user) {
-                openAuthModal();
-                chatListDiv.style.display = 'none';
-                showChatMenuBtn.style.display = 'none';
-                showAccountUI(false);
-                moveInputMiddle();
-            } else {
-                closeAuthModal();
-                currentUser = user;
-                showAccountUI(true);
-                
-                // Send authentication token to backend
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    const token = await user.getIdToken();
-                    ws.send(JSON.stringify({
-                        type: 'auth',
-                        token: token
-                    }));
-                }
-                
-                const chats = await getUserChats(user.uid);
-                renderChatList(chats);
-                moveInputMiddle();
-                renderMessages();
-                currentChatId = null;
-                chatListDiv.style.display = 'none';
-                showChatMenuBtn.style.display = 'flex';
-            }
-        });
-
-
         const chatListDiv = document.createElement('div');
         chatListDiv.id = 'chatList';
         chatListDiv.style = `
@@ -1391,7 +1304,7 @@ measurementId: "G-6YHFL3FN51"
                 display:block;width:90%;margin:12px auto;padding:12px 0;background:#4a9eff;color:#fff;border:none;border-radius:10px;text-align:center;cursor:pointer;font-size:16px;font-weight:600;transition:background 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.08);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;`
             newBtn.onmouseover = () => newBtn.style.background = '#357abd';
             newBtn.onmouseout = () => newBtn.style.background = '#4a9eff';
-            newBtn.onclick = () => startNewChat();
+            newBtn.onclick = () => newChat();
             chatListDiv.appendChild(newBtn);
             
             const searchDiv = document.createElement('div');
@@ -1442,24 +1355,7 @@ measurementId: "G-6YHFL3FN51"
             chatListDiv.appendChild(chatsContainer);
         }
 
-        async function loadChat(chatId) {
-            if (!currentUser) return;
-            currentChatId = chatId;
-
-            // Initialize backend with this chat
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'chat_init',
-                    chatId: chatId
-                }));
-            }
-
-            chatMessages = await getChatMessages(currentUser.uid, chatId);
-            renderMessages();
-        }
-
-
-        function detectLanguage(text) {
+        async function detectLanguage(text) {
             if (/[\u0590-\u05FF]/.test(text)) return 'he';
             if (/[\u0600-\u06FF]/.test(text)) return 'ar';
             if (/[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text)) return 'fa';
@@ -1599,12 +1495,12 @@ measurementId: "G-6YHFL3FN51"
             }
             
             // For manual "New Chat" button, create chat locally
-            currentChatId = await createChatSession(currentUser.uid, 'New Chat');
-            chatMessages = [];
-            renderMessages();
-            moveInputMiddle();
-            const chats = await getUserChats(currentUser.uid);
-            renderChatList(chats);
+            // Remove: currentChatId = await createChatSession(currentUser.id, 'New Chat');
+            // Remove: chatMessages = [];
+            // Remove: renderMessages();
+            // Remove: moveInputMiddle();
+            // Remove: const chats = await getUserChats(currentUser.id);
+            // Remove: renderChatList(chats);
         }
 
 
@@ -1716,6 +1612,14 @@ measurementId: "G-6YHFL3FN51"
                     dropdownNewChatBtn.style.opacity = '';
                     dropdownNewChatBtn.style.cursor = '';
                 }
+            }
+        }
+
+        // After Firebase login, send auth message to WebSocket
+        async function sendWebSocketAuth() {
+            if (ws && ws.readyState === WebSocket.OPEN && currentUser) {
+                const token = await currentUser.getIdToken();
+                ws.send(JSON.stringify({ type: 'auth', token }));
             }
         }
     </script>
